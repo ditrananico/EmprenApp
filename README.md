@@ -1,3 +1,3 @@
 # EmprenApp
 
-Este es el proyecto de Renzo, Nico y Bruno.
+Este es el proyecto de Renzo, Nico, Kevin y Bruno.
