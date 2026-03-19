@@ -14,10 +14,21 @@ public class UserDTO {
 
     private Long id;
     private String email;
-    private String password;
     private Timestamp fechaCreacion;
     private EstadoUserEnum estado;
     private String nombre;
     private String apellido;
     private String telefono;
+
+    public String toString(){
+        return "UserDTO{" +
+                "id=" + id +
+                ", email='" + email + '\'' +
+                ", fechaCreacion=" + fechaCreacion +
+                ", estado=" + estado +
+                ", nombre='" + nombre + '\'' +
+                ", apellido='" + apellido + '\'' +
+                ", telefono='" + telefono + '\'' +
+                '}';
+    }
 }

@@ -12,4 +12,8 @@ public class BaseException extends Exception{
         this.message = errorCodeEnum.getDescription();
         this.code = errorCodeEnum.getCode();
     }
+
+    public String getError(){
+        return "code" + code + " - " + message + "";
+    }
 }
