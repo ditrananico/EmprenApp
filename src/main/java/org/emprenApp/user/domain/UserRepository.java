@@ -1,6 +1,8 @@
 package org.emprenApp.user.domain;
 
 import org.emprenApp.shared.application.enums.EstadoUserEnum;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,4 +14,6 @@ public interface UserRepository extends JpaRepository<User,Long> {
     Optional<User> findByEmailAndEstado(String email, EstadoUserEnum estado);
 
     Optional<User> findByIdAndEstado(Long id, EstadoUserEnum estado);
+    
+    Page<User> findAllByEstado(EstadoUserEnum estado, Pageable pageable);
 }

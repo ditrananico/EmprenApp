@@ -10,10 +10,15 @@ import org.emprenApp.user.application.mapper.UserMapper;
 import org.emprenApp.user.domain.User;
 import org.emprenApp.user.domain.UserRepository;
 import org.emprenApp.user.infrastructure.request.UserCreateRequest;
+import org.emprenApp.user.infrastructure.request.UserUpdateRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -62,11 +67,95 @@ public class UserService implements UserAdapter {
         return UserMapper.INSTANCE.toDTO(user.get());
 
     }
-
     @Override
-    public UserDTO updateUser(UserDTO userDTO) throws GenericException {
-        return null;
+    public Page<UserDTO>  getAllUsers(Pageable pageable) throws GenericException {
+        try {
+            Page<User> users = userRepository.findAllByEstado(EstadoUserEnum.ACTIVO, pageable);
+            return UserMapper.INSTANCE.toPageDTO(users);
+        }catch(DataAccessException e){
+            logger.error("Error de acceso a datos al obtener usuarios: {}", e.getMessage());
+            throw new GenericException();
+        }
+
     }
 
-    //Tarea: actualizar el estado de un usuario por id
+    @Override
+    public String deleteUser(String email) throws GenericException, NotFoundException {
+        if (email == null) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
+
+        Optional<User> userOptional = userRepository.findByEmailAndEstado(email, EstadoUserEnum.ACTIVO);
+        if (userOptional.isEmpty()) {
+            throw new NotFoundException();
+        }
+        User user = userOptional.get();
+        userRepository.delete(user);
+
+        logger.info("Usuario eliminado exitosamente: {}", email);
+        return "Usuario eliminado exitosamente";
+    }
+
+
+    @Override
+    public String deleteUserLogical(String email) throws GenericException, NotFoundException {
+        try {
+            if (email == null) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
+
+            Optional<User> userOptional = userRepository.findByEmailAndEstado(email, EstadoUserEnum.ACTIVO);
+            if (userOptional.isEmpty()) {
+                throw new NotFoundException();
+            }
+            User user = userOptional.get();
+            user.setEstado(EstadoUserEnum.INACTIVO);
+            userRepository.save(user);
+
+            logger.info("Usuario eliminado (estado cambiado a INACTIVO): {}", email);
+            return "Usuario eliminado exitosamente";
+        } catch (NotFoundException e) {
+            logger.warn("Usuario no encontrado para eliminación: {}", email);
+            throw e;
+        }  catch (Exception e) {
+            logger.error("Error inesperado al eliminar usuario:", e);
+            throw new GenericException();
+        }
+    }
+
+    @Override
+    public UserDTO updateUser(UserUpdateRequest userUpdateRequest) throws GenericException, NotFoundException {
+
+        if (userUpdateRequest == null || userUpdateRequest.getEmail() == null) {
+            throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
+        }
+
+        Optional<User> userOptional = userRepository.findByEmailAndEstado(userUpdateRequest.getEmail(), EstadoUserEnum.ACTIVO);
+        if (userOptional.isEmpty()) {
+            throw new NotFoundException();
+        }
+
+        User user = userOptional.get();
+        if (userUpdateRequest.getNombre() != null) user.setNombre(userUpdateRequest.getNombre());
+        if (userUpdateRequest.getApellido() != null) user.setApellido(userUpdateRequest.getApellido());
+        if (userUpdateRequest.getTelefono() != null) user.setTelefono(userUpdateRequest.getTelefono());
+
+        userRepository.save(user);
+        logger.info("Usuario actualizado: {}", userUpdateRequest.getEmail());
+        return UserMapper.INSTANCE.toDTO(user);
+    }
+
+    @Override
+    public String updateStatusUser(Long id) throws GenericException, NotFoundException {
+
+        if (id == null || id < 0) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
+
+        Optional<User> userOptional = userRepository.findByIdAndEstado(id, EstadoUserEnum.ACTIVO);
+        userOptional.orElseThrow(NotFoundException::new);
+
+        User user = userOptional.get();
+        user.setEstado(EstadoUserEnum.ACTIVO);
+        userRepository.save(user);
+
+        logger.info("Estado del usuario actualizado: {}", user.getEstado());
+
+        return "Estado del usuario actualizado exitosamente";
+    }
+
 }
