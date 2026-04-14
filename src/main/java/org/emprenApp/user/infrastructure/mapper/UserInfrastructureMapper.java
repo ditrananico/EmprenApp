@@ -6,7 +6,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
-public interface UserInfrastructureMapper {
+public interface
+UserInfrastructureMapper {
 
     UserInfrastructureMapper INSTANCE = Mappers.getMapper(UserInfrastructureMapper.class);
 
