@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: emprenApp
+  mvc:
+    static-path-pattern: /swagger*
+  datasource:
+    url: jdbc:mysql://localhost:3306/emprenApp
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: root
+    hikari:
+      maximum-pool-size: 10
+      connection-timeout: 30000
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  h2:
+    console:
+      enabled: true
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+server:
+  error:
+    include-message: never
+    include-stacktrace: never
