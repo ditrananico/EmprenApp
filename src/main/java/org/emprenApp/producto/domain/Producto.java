@@ -33,6 +33,8 @@ public class Producto {
     @Column(name = "STOCK_MINIMO")
     private Integer stockMinimo;
 
+    @Column(name = "ACTIVE")
+    private Boolean active = true;
 
       /* @ManyToOne
     @JoinColumn(name = "CATEGORIA_ID", nullable = false)
