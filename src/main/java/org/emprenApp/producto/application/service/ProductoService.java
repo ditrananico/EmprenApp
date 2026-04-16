@@ -1,7 +1,7 @@
 package org.emprenApp.producto.application.service;
 
 import org.emprenApp.producto.application.ProductoAdapter;
-import org.emprenApp.producto.application.dto.ProductDTO;
+import org.emprenApp.producto.application.dto.ProductoDTO;
 import org.emprenApp.producto.application.mapper.ProductoMapper;
 import org.emprenApp.producto.domain.Producto;
 import org.emprenApp.producto.domain.ProductoRepository;
@@ -26,7 +26,7 @@ public class ProductoService implements ProductoAdapter {
     private ProductoRepository productoRepository;
 
     @Override
-    public ProductDTO createProducto(ProductCreateRequest request) throws GenericException {
+    public ProductoDTO createProducto(ProductCreateRequest request) throws GenericException {
         try {
             if (request == null) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
             Producto producto = new Producto();
@@ -46,13 +46,13 @@ public class ProductoService implements ProductoAdapter {
     }
 
     @Override
-    public ProductDTO getProductoByID(Long id) throws GenericException, NotFoundException {
+    public ProductoDTO getProductoByID(Long id) throws GenericException, NotFoundException {
         if (id == null || id < 0) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
         return ProductoMapper.INSTANCE.toDTO(productoRepository.findById(id).orElseThrow(NotFoundException::new));
     }
 
     @Override
-    public ProductDTO updateProducto(ProductUpdateRequest request) throws GenericException, NotFoundException {
+    public ProductoDTO updateProducto(ProductUpdateRequest request) throws GenericException, NotFoundException {
         if (request == null || request.getId() == null) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
         Producto producto = productoRepository.findById(request.getId()).orElseThrow(NotFoundException::new);
         producto.setTitulo(request.getTitulo());
@@ -82,7 +82,7 @@ public class ProductoService implements ProductoAdapter {
     }
 
     @Override
-    public Page<ProductDTO> getProductosByCategoria(Long categoryId, Pageable pageable) throws GenericException {
+    public Page<ProductoDTO> getProductosByCategoria(Long categoryId, Pageable pageable) throws GenericException {
         return null; // A implementar cuando exista el repositorio
     }
 }

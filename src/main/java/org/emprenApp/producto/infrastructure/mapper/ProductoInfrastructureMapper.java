@@ -1,6 +1,6 @@
 package org.emprenApp.producto.infrastructure.mapper;
 
-import org.emprenApp.producto.application.dto.ProductDTO;
+import org.emprenApp.producto.application.dto.ProductoDTO;
 import org.emprenApp.producto.infrastructure.response.ProductResponse;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
@@ -9,5 +9,5 @@ import org.mapstruct.factory.Mappers;
 public interface ProductoInfrastructureMapper {
     ProductoInfrastructureMapper INSTANCE = Mappers.getMapper(ProductoInfrastructureMapper.class);
 
-    ProductResponse toResponse(ProductDTO productDTO);
+    ProductResponse toResponse(ProductoDTO productDTO);
 }

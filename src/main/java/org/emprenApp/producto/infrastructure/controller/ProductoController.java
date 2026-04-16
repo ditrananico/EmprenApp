@@ -1,7 +1,7 @@
 package org.emprenApp.producto.infrastructure.controller;
 
 import org.emprenApp.producto.application.ProductoAdapter;
-import org.emprenApp.producto.application.dto.ProductDTO;
+import org.emprenApp.producto.application.dto.ProductoDTO;
 import org.emprenApp.producto.infrastructure.mapper.ProductoInfrastructureMapper;
 import org.emprenApp.producto.infrastructure.request.ProductCreateRequest;
 import org.emprenApp.producto.infrastructure.request.ProductUpdateRequest;
@@ -29,7 +29,7 @@ public class ProductoController {
     public ResponseEntity createProducto(@RequestBody @Validated ProductCreateRequest request) throws BaseException {
         try {
             logger.info("Creando producto: " + request.getTitulo());
-            ProductDTO created = productoAdapter.createProducto(request);
+            ProductoDTO created = productoAdapter.createProducto(request);
             return responseOk(ProductoInfrastructureMapper.INSTANCE.toResponse(created));
         } catch (GenericException e) {
             logger.error("Error al crear producto: ", e);
@@ -39,7 +39,7 @@ public class ProductoController {
 
     @GetMapping("/{id}")
     public ProductResponse getProducto(@PathVariable Long id) throws BaseException {
-        ProductDTO dto = productoAdapter.getProductoByID(id);
+        ProductoDTO dto = productoAdapter.getProductoByID(id);
         return ProductoInfrastructureMapper.INSTANCE.toResponse(dto);
     }
 
@@ -47,7 +47,7 @@ public class ProductoController {
     public ResponseEntity<ProductResponse> updateProducto(@RequestBody @Validated ProductUpdateRequest request) throws BaseException {
         try {
             logger.info("Actualizando producto: " + request.getId());
-            ProductDTO updated = productoAdapter.updateProducto(request);
+            ProductoDTO updated = productoAdapter.updateProducto(request);
             return ResponseEntity.ok(ProductoInfrastructureMapper.INSTANCE.toResponse(updated));
         } catch (GenericException e) {
             logger.error("Error al actualizar producto: ", e);
