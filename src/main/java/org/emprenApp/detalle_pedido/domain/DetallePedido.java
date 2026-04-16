@@ -23,12 +23,13 @@ public class DetallePedido {
     @Column(name = "PRECIO_UNITARIO", precision = 10, scale = 2, nullable = false)
     private Double precioUnitario;
 
-     /* @ManyToOne
+    /* 
+    @ManyToOne
     @JoinColumn(name = "PEDIDO_ID", nullable = false)
     private Pedido pedidoId; // pedido_id (FK a la tabla de pedidos)
 
     @ManyToOne
     @JoinColumn(name = "PRODUCTO_ID", nullable = false)
     private Producto productoId; // producto_id (FK a la tabla de productos)
-     */
+    */
 }
