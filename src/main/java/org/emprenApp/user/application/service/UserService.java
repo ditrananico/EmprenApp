@@ -72,31 +72,15 @@ public class UserService implements UserAdapter {
         try {
             Page<User> users = userRepository.findAllByEstado(EstadoUserEnum.ACTIVO, pageable);
             return UserMapper.INSTANCE.toPageDTO(users);
-        }catch(DataAccessException e){
-            logger.error("Error de acceso a datos al obtener usuarios: {}", e.getMessage());
+        }catch(Exception e){
+            logger.error("Error al obtener los usuarios", e);
             throw new GenericException();
         }
 
     }
 
     @Override
-    public String deleteUser(String email) throws GenericException, NotFoundException {
-        if (email == null) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
-
-        Optional<User> userOptional = userRepository.findByEmailAndEstado(email, EstadoUserEnum.ACTIVO);
-        if (userOptional.isEmpty()) {
-            throw new NotFoundException();
-        }
-        User user = userOptional.get();
-        userRepository.delete(user);
-
-        logger.info("Usuario eliminado exitosamente: {}", email);
-        return "Usuario eliminado exitosamente";
-    }
-
-
-    @Override
-    public String deleteUserLogical(String email) throws GenericException, NotFoundException {
+    public void deleteUser(String email) throws GenericException, NotFoundException {
         try {
             if (email == null) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
 
@@ -108,12 +92,8 @@ public class UserService implements UserAdapter {
             user.setEstado(EstadoUserEnum.INACTIVO);
             userRepository.save(user);
 
-            logger.info("Usuario eliminado (estado cambiado a INACTIVO): {}", email);
-            return "Usuario eliminado exitosamente";
-        } catch (NotFoundException e) {
-            logger.warn("Usuario no encontrado para eliminación: {}", email);
-            throw e;
-        }  catch (Exception e) {
+            logger.info("Usuario eliminado exitosamente: {}", email);
+       } catch (Exception e) {
             logger.error("Error inesperado al eliminar usuario:", e);
             throw new GenericException();
         }
@@ -130,11 +110,7 @@ public class UserService implements UserAdapter {
         if (userOptional.isEmpty()) {
             throw new NotFoundException();
         }
-
-        User user = userOptional.get();
-        if (userUpdateRequest.getNombre() != null) user.setNombre(userUpdateRequest.getNombre());
-        if (userUpdateRequest.getApellido() != null) user.setApellido(userUpdateRequest.getApellido());
-        if (userUpdateRequest.getTelefono() != null) user.setTelefono(userUpdateRequest.getTelefono());
+        User user = UserMapper.INSTANCE.toEntity(userUpdateRequest);
 
         userRepository.save(user);
         logger.info("Usuario actualizado: {}", userUpdateRequest.getEmail());
@@ -142,7 +118,7 @@ public class UserService implements UserAdapter {
     }
 
     @Override
-    public String updateStatusUser(Long id) throws GenericException, NotFoundException {
+    public void updateStatusUser(Long id) throws GenericException, NotFoundException {
 
         if (id == null || id < 0) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
 
@@ -154,8 +130,6 @@ public class UserService implements UserAdapter {
         userRepository.save(user);
 
         logger.info("Estado del usuario actualizado: {}", user.getEstado());
-
-        return "Estado del usuario actualizado exitosamente";
     }
 
 }

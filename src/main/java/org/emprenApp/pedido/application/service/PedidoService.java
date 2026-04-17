@@ -57,4 +57,19 @@ public class PedidoService implements PedidoAdapter {
 
         return PedidoMapper.INSTANCE.toPageDTO(pedidosPage);
     }
+
+    @Override
+    public PedidoDTO updateStatus(Long id, EstadoPedidoEnum nuevoEstado) throws GenericException, NotFoundException {
+        Pedido pedido = pedidoRepository.findById(id).orElseThrow(NotFoundException::new);
+        pedido.setStatus(nuevoEstado);
+        return PedidoMapper.INSTANCE.toDTO(pedidoRepository.save(pedido));
+    }
+
+    @Override
+    public String cancelPedido(Long id) throws GenericException, NotFoundException {
+        Pedido pedido = pedidoRepository.findById(id).orElseThrow(NotFoundException::new);
+        pedido.setStatus(EstadoPedidoEnum.CANCELADO);
+        pedidoRepository.save(pedido);
+        return "Pedido con ID " + id + " cancelado correctamente";
+    }
 }

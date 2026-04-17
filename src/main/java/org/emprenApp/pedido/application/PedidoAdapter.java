@@ -14,4 +14,7 @@ public interface PedidoAdapter {
     Page<PedidoDTO> getAllPedidoByUserIDAndStatus(Long userId, EstadoPedidoEnum status, Pageable pageable) throws GenericException, NotFoundException;
     Page<PedidoDTO> getAllPedidoByEmprendimientoIDAndStatus(Long emprendimientoId, EstadoPedidoEnum status, Pageable pageable) throws GenericException, NotFoundException;
 
+    PedidoDTO updateStatus(Long id, EstadoPedidoEnum nuevoEstado) throws GenericException, NotFoundException;
+    String cancelPedido(Long id) throws GenericException, NotFoundException;
+
 }

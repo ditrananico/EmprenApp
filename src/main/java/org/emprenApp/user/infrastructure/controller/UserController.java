@@ -10,6 +10,7 @@ import org.emprenApp.user.infrastructure.request.UserUpdateRequest;
 import org.emprenApp.user.infrastructure.response.UserResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     private final static Logger logger = LoggerFactory.getLogger(UserController.class);
 
+    @Autowired
     private UserAdapter userAdapter;
 
     @GetMapping("/all")
@@ -56,15 +58,10 @@ public class UserController {
 
     @DeleteMapping("/delete/{email}")
     public ResponseEntity<String> deleteUser(@PathVariable String email) throws BaseException {
-       String deleteResponse=  userAdapter.deleteUser(email);
-        return ResponseEntity.ok(deleteResponse);
+             userAdapter.deleteUser(email);
+        return ResponseEntity.ok("Usuario con email " + email + " eliminado correctamente");
     }
 
-    @DeleteMapping("/delete/logical/{email}")
-    public ResponseEntity<String> deleteUserLogical(@PathVariable String email) throws BaseException {
-        String deleteResponse=  userAdapter.deleteUserLogical(email);
-        return ResponseEntity.ok(deleteResponse);
-    }
 
     @PutMapping("/edit")
     public ResponseEntity<UserResponse> updateUser(@RequestBody @Validated UserUpdateRequest updateRequest) throws BaseException {
@@ -81,14 +78,14 @@ public class UserController {
         }
     }
 
-    @PutMapping("/edit/{id}")
+    @PutMapping("/edit/status/{id}")
     public ResponseEntity<String> updateStatusUser(@PathVariable Long id) throws BaseException {
         try {
             logger.info("Actualizando estado usuario: " + id);
 
-            String responseService = userAdapter.updateStatusUser(id);
+            userAdapter.updateStatusUser(id);
 
-            return ResponseEntity.ok(responseService);
+            return ResponseEntity.ok("Estado del usuario actualizado exitosamente");
         } catch (GenericException e) {
             logger.error("Error al actualizar usuario: ", e);
             return responseError(e);
