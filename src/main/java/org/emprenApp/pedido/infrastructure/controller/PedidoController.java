@@ -34,16 +34,17 @@ public class PedidoController {
     public ResponseEntity<Page<PedidoDTO>> getPedidosByEmprendimiento(@PathVariable Long emprendimientoId, @RequestParam(required = false) EstadoPedidoEnum status, Pageable pageable) throws BaseException {
         return ResponseEntity.ok(pedidoAdapter.getAllPedidoByEmprendimientoIDAndStatus(emprendimientoId, status, pageable));
     }
-    /*
-    get all pedidos paginable
-    get pedido por id del pedido
+    @PatchMapping("/{id}/status")
+    public ResponseEntity<PedidoDTO> updateStatus(@PathVariable Long id, @RequestParam EstadoPedidoEnum nuevoEstado) throws BaseException {
+        logger.info("Actualizando estado del pedido: " + id + " a " + nuevoEstado);
+        return ResponseEntity.ok(pedidoAdapter.updateStatus(id, nuevoEstado));
+    }
 
+    @DeleteMapping("/cancel/{id}")
+    public ResponseEntity<String> cancelPedido(@PathVariable Long id) throws BaseException {
+        logger.info("Cancelando pedido: " + id);
+        return ResponseEntity.ok(pedidoAdapter.cancelPedido(id));
+    }
 
-    get pedido por id del usuario paginable
-    get pedido por id del usuario + estado paginable
-
-    get pedidos por id emprendimiento paginable
-    get pedidos por estado y id emprendimiento paginable
-
-     */
+    //revisar los ultimos dos endpoint - desarrollar el create
 }
