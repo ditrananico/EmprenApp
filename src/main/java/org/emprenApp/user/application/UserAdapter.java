@@ -18,8 +18,7 @@ public interface UserAdapter {
     UserDTO getUserByID(Long id) throws GenericException, NotFoundException;
     UserDTO updateUser(UserUpdateRequest userUpdateRequest) throws GenericException, NotFoundException;
     Page<UserDTO> getAllUsers(Pageable pageable) throws GenericException;
-    String deleteUser(String email) throws GenericException, NotFoundException;
-    String deleteUserLogical(String email) throws GenericException, NotFoundException;
-    String updateStatusUser(Long id) throws GenericException, NotFoundException;
+    void deleteUser(String email) throws GenericException, NotFoundException;
+    void updateStatusUser(Long id) throws GenericException, NotFoundException;
 
 }

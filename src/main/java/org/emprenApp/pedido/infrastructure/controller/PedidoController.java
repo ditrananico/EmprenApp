@@ -4,10 +4,9 @@ import org.emprenApp.pedido.application.PedidoAdapter;
 import org.emprenApp.pedido.application.dto.PedidoDTO;
 import org.emprenApp.shared.application.enums.EstadoPedidoEnum;
 import org.emprenApp.shared.application.exception.BaseException;
-import org.emprenApp.user.application.dto.UserDTO;
-import org.emprenApp.user.infrastructure.controller.UserController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +15,9 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("v1/pedido")
 public class PedidoController {
-    private final static Logger logger = LoggerFactory.getLogger(UserController.class);
+    private final static Logger logger = LoggerFactory.getLogger(PedidoController.class);
 
+    @Autowired
     private PedidoAdapter pedidoAdapter;
 
     @GetMapping("/{id}")

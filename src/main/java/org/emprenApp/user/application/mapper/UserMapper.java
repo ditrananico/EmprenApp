@@ -29,6 +29,7 @@ public interface UserMapper {
     UserDTO toDTO(User user);
 
     Page<UserDTO> toPageDTO(Page<User> users);
+    User toEntity(UserUpdateRequest userUpdateRequest);
 
     @AfterMapping
     default void setDefaultValues(@MappingTarget User user) {
