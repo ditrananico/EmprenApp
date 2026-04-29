@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.emprenApp.shared.application.enums.EstadoUserEnum;
+import org.emprenApp.shared.application.enums.EstadoEmprendimientoEnum;
 
 @Entity
 @Table(name = "emprendimientos")
@@ -19,12 +19,12 @@ public class Emprendimiento {
     @Column(name = "NAME", nullable = false, length = 40)
     private String name;
 
-    @Column(name = "DESCRIPTION", length = 500)
+    @Column(name = "DESCRIPTION", length = 250)
     private String description;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "ESTADO", nullable = false, length = 20)
-    private EstadoUserEnum estado;
+    private EstadoEmprendimientoEnum estado;
 
     // Faltaría usuario_id y ubicación
 }
