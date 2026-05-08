@@ -2,6 +2,8 @@ package org.emprenApp.emprendimiento.application.mapper;
 
 import org.emprenApp.emprendimiento.application.dto.EmprendimientoDTO;
 import org.emprenApp.emprendimiento.domain.Emprendimiento;
+import org.emprenApp.emprendimiento.domain.EmprendimientoRepository;
+import org.emprenApp.emprendimiento.infrastructure.request.EmprendimientoCreateRequest;
 import org.emprenApp.shared.application.enums.EstadoEmprendimientoEnum;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
@@ -22,4 +24,7 @@ public interface EmprendimientoMapper {
     default void setDefaultValues(@MappingTarget Emprendimiento emprendimiento) {
         if (emprendimiento.getEstado() == null) emprendimiento.setEstado(EstadoEmprendimientoEnum.ACTIVO);
     }
+
+    Emprendimiento toEntityFromRequest(EmprendimientoCreateRequest request);
+
 }
