@@ -5,10 +5,11 @@ import java.util.Arrays;
 public enum ErrorCodeEnum {
 
     OK(0, "Accion realizada correctamente"),
-    PARAMETROS_INCORRECTOS(1, "Parametros ingresados incorrectos"),
+    INVALID_PARAMETERS(1, "Parametros ingresados incorrectos"),
     NOT_FOUND(2, "Recurso no encontrado"),
     DUPLICATE_KEY(3, "Clave unica duplicada"),
     PATTERN_EMAIL(4, "Correo electronico no valido"),
+    INPUT_LENGTH(5, "El campo supera el máximo permitido"),
     GENERIC_ERROR(99, "Error generico en el sistema");
 
     private final Integer code;

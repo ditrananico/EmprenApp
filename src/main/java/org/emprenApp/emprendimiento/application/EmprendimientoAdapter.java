@@ -1,15 +1,13 @@
-package org.emprenApp.emprendimiento;
+package org.emprenApp.emprendimiento.application;
 
 import org.emprenApp.emprendimiento.application.dto.EmprendimientoDTO;
 import org.emprenApp.emprendimiento.infrastructure.request.EmprendimientoCreateRequest;
 import org.emprenApp.shared.application.exception.GenericException;
-import org.emprenApp.shared.application.exception.NotFoundException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.emprenApp.shared.application.exception.ValidationException;
 
 public interface EmprendimientoAdapter {
 
-    EmprendimientoDTO crearEmprendimiento(EmprendimientoCreateRequest emprendimientoCreateRequest) throws GenericException;
+    EmprendimientoDTO createEmprendimiento(EmprendimientoCreateRequest emprendimientoCreateRequest) throws GenericException, ValidationException;
 //    EmprendimientoDTO getEmprendimientoById(Long id) throws GenericException, NotFoundException;
 //    Page<EmprendimientoDTO> getEmprendimientos(Pageable pageable) throws GenericException;
 //    EmprendimientoDTO updateEmprendimiento(Long id, EmprendimientoUpdateRequest emprendimientoUpdateRequest) throws GenericException, NotFoundException;
