@@ -2,6 +2,8 @@ package org.emprenApp.shared.application.exception;
 
 import org.emprenApp.shared.application.BaseResponse;
 import org.emprenApp.shared.application.enums.ErrorCodeEnum;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -11,6 +13,8 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 @RestControllerAdvice
 public class GlobalHandlerException extends ResponseEntityExceptionHandler {
+
+    private final Logger logger = LoggerFactory.getLogger(GlobalHandlerException.class);
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
