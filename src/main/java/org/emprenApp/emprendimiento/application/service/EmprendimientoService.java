@@ -9,6 +9,7 @@ import org.emprenApp.emprendimiento.infrastructure.request.EmprendimientoCreateR
 import org.emprenApp.emprendimiento.infrastructure.request.EmprendimientoUpdateRequest;
 import org.emprenApp.shared.application.enums.ErrorCodeEnum;
 import org.emprenApp.shared.application.enums.EstadoEmprendimientoEnum;
+import org.emprenApp.shared.application.exception.BaseException;
 import org.emprenApp.shared.application.exception.GenericException;
 import org.emprenApp.shared.application.exception.NotFoundException;
 import org.emprenApp.shared.application.exception.ValidationException;
@@ -28,7 +29,7 @@ public class EmprendimientoService implements EmprendimientoAdapter {
     @Autowired private EmprendimientoValidationService validationService;
 
     @Override
-    public EmprendimientoDTO createEmprendimiento(EmprendimientoCreateRequest emprendimientoCreateRequest) throws GenericException, ValidationException {
+    public EmprendimientoDTO createEmprendimiento(EmprendimientoCreateRequest emprendimientoCreateRequest) throws BaseException {
         try {
             validationService.validateCreateRequest(emprendimientoCreateRequest);
             Emprendimiento emprendimiento = repository.save(
@@ -46,9 +47,10 @@ public class EmprendimientoService implements EmprendimientoAdapter {
     }
 
     @Override
-    public EmprendimientoDTO getEmprendimientoById(Long id) throws GenericException, NotFoundException {
+    public EmprendimientoDTO getEmprendimientoById(Long id) throws BaseException {
         if (id == null || id < 0) {
-            throw new GenericException(ErrorCodeEnum.INVALID_PARAMETERS);
+            logger.error("ERROR al crear Emprendimiento por id inválido");
+            throw new ValidationException();
         }
 
         try {
@@ -63,7 +65,7 @@ public class EmprendimientoService implements EmprendimientoAdapter {
         }
     }
 
-    public Page<EmprendimientoDTO> getEmprendimientos(Pageable pageable) throws GenericException {
+    public Page<EmprendimientoDTO> getEmprendimientos(Pageable pageable) throws BaseException {
         try {
             Page<Emprendimiento> emprendimientos = repository.findAllByEstado(EstadoEmprendimientoEnum.ACTIVO, pageable);
             return EmprendimientoMapper.INSTANCE.toPageDTO(emprendimientos);
@@ -74,7 +76,7 @@ public class EmprendimientoService implements EmprendimientoAdapter {
     }
 
     @Override
-    public EmprendimientoDTO updateEmprendimiento(Long id, EmprendimientoUpdateRequest emprendimientoUpdateRequest) throws GenericException, NotFoundException, ValidationException {
+    public EmprendimientoDTO updateEmprendimiento(Long id, EmprendimientoUpdateRequest emprendimientoUpdateRequest) throws BaseException {
         if (id == null || id < 0) {
             throw new GenericException(ErrorCodeEnum.INVALID_PARAMETERS);
         }
@@ -107,9 +109,9 @@ public class EmprendimientoService implements EmprendimientoAdapter {
     }
 
     @Override
-    public Boolean deleteEmprendimiento(Long id) throws GenericException, NotFoundException {
+    public void deleteEmprendimiento(Long id) throws BaseException {
         if (id == null || id < 0) {
-            throw new GenericException(ErrorCodeEnum.INVALID_PARAMETERS);
+            throw new ValidationException();
         }
 
         try {
@@ -118,7 +120,7 @@ public class EmprendimientoService implements EmprendimientoAdapter {
 
             emprendimiento.setEstado(EstadoEmprendimientoEnum.INACTIVO);
             repository.save(emprendimiento);
-            return Boolean.TRUE;
+            logger.info("El emprendimiento con id {} se eliminó correctamente", id);
         } catch (NotFoundException notFoundException) {
             logger.error("ERROR Emprendimiento con id: {} no encontrado para eliminar", id);
             throw notFoundException;

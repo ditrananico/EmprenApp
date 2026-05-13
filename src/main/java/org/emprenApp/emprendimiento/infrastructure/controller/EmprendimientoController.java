@@ -61,6 +61,10 @@ public class EmprendimientoController {
         return ResponseEntity.ok(response);
     }
 
+    // AGREGAR MÉTODO CAMBIAR ESTADO, enviar por query params GOOGLEAR (o chatgptear)
+    // @PutMapping("/status/{id}")
+
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEmprendimiento(@PathVariable Long id) throws BaseException {
         logger.info("Se inicializa la eliminación lógica del emprendimiento con id: {}", id);
