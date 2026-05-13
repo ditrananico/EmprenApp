@@ -1,5 +1,6 @@
 package org.emprenApp.pedido.application.service;
 
+import org.emprenApp.emprendimiento.application.service.EmprendimientoService;
 import org.emprenApp.pedido.application.PedidoAdapter;
 import org.emprenApp.pedido.application.dto.PedidoDTO;
 import org.emprenApp.pedido.application.mapper.PedidoMapper;
@@ -26,12 +27,17 @@ public class PedidoService implements PedidoAdapter {
 
     private PedidoRepository pedidoRepository;
     private UserAdapter  userService;
+    private EmprendimientoService emprendimientoService;
 
     @Override
     public Page<PedidoDTO> getAllPedidos(Pageable pageable) throws GenericException {
             return null;
     }
 
+    @Override
+    public void savePedido(PedidoDTO pedidoDTO) throws GenericException {
+
+    }
     @Override
     public PedidoDTO getPedidoByID(Long id) throws GenericException, NotFoundException {
         if (id == null || id < 0) throw new GenericException(ErrorCodeEnum.INVALID_PARAMETERS);
@@ -54,7 +60,7 @@ public class PedidoService implements PedidoAdapter {
     public Page<PedidoDTO> getAllPedidoByEmprendimientoIDAndStatus(Long emprendimientoId,EstadoPedidoEnum status, Pageable pageable) throws GenericException, NotFoundException {
 
         //falta servicio getID del Emprendimiento
-     //emprendimientoService.getEmprendimientoID(emprendimientoId);
+     //emprendimientoService.(emprendimientoId);
        Page<Pedido> pedidosPage = pedidoRepository.findByEmprendimientoIdAndStatusOptional(emprendimientoId, status, pageable);
 
         return PedidoMapper.INSTANCE.toPageDTO(pedidosPage);

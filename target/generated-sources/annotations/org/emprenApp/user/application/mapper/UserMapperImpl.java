@@ -3,11 +3,13 @@ package org.emprenApp.user.application.mapper;
 import javax.annotation.processing.Generated;
 import org.emprenApp.user.application.dto.UserDTO;
 import org.emprenApp.user.domain.User;
+import org.emprenApp.user.infrastructure.request.UserCreateRequest;
+import org.emprenApp.user.infrastructure.request.UserUpdateRequest;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-03-19T17:33:48-0300",
-    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.10 (Oracle Corporation)"
+    date = "2026-05-13T18:32:13-0300",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.7 (Oracle Corporation)"
 )
 public class UserMapperImpl implements UserMapper {
 
@@ -21,12 +23,32 @@ public class UserMapperImpl implements UserMapper {
 
         user.setId( userDTO.getId() );
         user.setEmail( userDTO.getEmail() );
-        user.setPassword( userDTO.getPassword() );
         user.setFechaCreacion( userDTO.getFechaCreacion() );
         user.setEstado( userDTO.getEstado() );
         user.setNombre( userDTO.getNombre() );
         user.setApellido( userDTO.getApellido() );
         user.setTelefono( userDTO.getTelefono() );
+
+        setDefaultValues( user );
+
+        return user;
+    }
+
+    @Override
+    public User toEntity(UserCreateRequest userCreateRequest) {
+        if ( userCreateRequest == null ) {
+            return null;
+        }
+
+        User user = new User();
+
+        user.setTelefono( userCreateRequest.getTelefonoPersonal() );
+        user.setNombre( UserMapper.limpiarBlancosEnElNombre( userCreateRequest.getNombre() ) );
+        user.setEmail( userCreateRequest.getEmail() );
+        user.setPassword( userCreateRequest.getPassword() );
+        user.setApellido( userCreateRequest.getApellido() );
+
+        setDefaultValues( user );
 
         return user;
     }
@@ -41,7 +63,6 @@ public class UserMapperImpl implements UserMapper {
 
         userDTO.setId( user.getId() );
         userDTO.setEmail( user.getEmail() );
-        userDTO.setPassword( user.getPassword() );
         userDTO.setFechaCreacion( user.getFechaCreacion() );
         userDTO.setEstado( user.getEstado() );
         userDTO.setNombre( user.getNombre() );
@@ -49,5 +70,23 @@ public class UserMapperImpl implements UserMapper {
         userDTO.setTelefono( user.getTelefono() );
 
         return userDTO;
+    }
+
+    @Override
+    public User toEntity(UserUpdateRequest userUpdateRequest) {
+        if ( userUpdateRequest == null ) {
+            return null;
+        }
+
+        User user = new User();
+
+        user.setEmail( userUpdateRequest.getEmail() );
+        user.setNombre( userUpdateRequest.getNombre() );
+        user.setApellido( userUpdateRequest.getApellido() );
+        user.setTelefono( userUpdateRequest.getTelefono() );
+
+        setDefaultValues( user );
+
+        return user;
     }
 }

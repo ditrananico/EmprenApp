@@ -8,8 +8,10 @@ import org.emprenApp.producto.domain.ProductoRepository;
 import org.emprenApp.producto.infrastructure.request.ProductCreateRequest;
 import org.emprenApp.producto.infrastructure.request.ProductUpdateRequest;
 import org.emprenApp.shared.application.enums.ErrorCodeEnum;
+import org.emprenApp.shared.application.exception.BaseException;
 import org.emprenApp.shared.application.exception.GenericException;
 import org.emprenApp.shared.application.exception.NotFoundException;
+import org.emprenApp.shared.application.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,14 +40,14 @@ public class ProductoService implements ProductoAdapter {
     }
 
     @Override
-    public ProductoDTO getProductoByID(Long id) throws GenericException, NotFoundException {
-        if (id == null || id < 0) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
+    public ProductoDTO getProductoByID(Long id) throws BaseException {
+        if (id == null || id < 0) throw new ValidationException();
         return ProductoMapper.INSTANCE.toDTO(productoRepository.findById(id).orElseThrow(NotFoundException::new));
     }
 
     @Override
-    public ProductoDTO updateProducto(ProductUpdateRequest request) throws GenericException, NotFoundException {
-        if (request == null || request.getId() == null) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
+    public ProductoDTO updateProducto(ProductUpdateRequest request) throws BaseException {
+        if (request == null || request.getId() == null) throw new ValidationException();
         Producto producto = productoRepository.findById(request.getId()).orElseThrow(NotFoundException::new);
         producto.setTitulo(request.getTitulo());
         producto.setDescripcion(request.getDescripcion());
@@ -58,8 +60,8 @@ public class ProductoService implements ProductoAdapter {
     }
 
     @Override
-    public String deleteProducto(Long id) throws GenericException, NotFoundException {
-        if (id == null) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
+    public String deleteProducto(Long id) throws BaseException {
+        if (id == null) throw new ValidationException();
         if (!productoRepository.existsById(id)) throw new NotFoundException();
         productoRepository.deleteById(id);
         return "Producto eliminado exitosamente";

@@ -6,8 +6,8 @@ import org.emprenApp.user.infrastructure.response.UserResponse;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-04-16T11:57:18-0300",
-    comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.46.0.v20260407-0427, environment: Java 21.0.10 (Eclipse Adoptium)"
+    date = "2026-05-13T18:32:13-0300",
+    comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.7 (Oracle Corporation)"
 )
 public class UserInfrastructureMapperImpl implements UserInfrastructureMapper {
 
@@ -19,12 +19,12 @@ public class UserInfrastructureMapperImpl implements UserInfrastructureMapper {
 
         UserResponse userResponse = new UserResponse();
 
-        userResponse.setApellido( userDTO.getApellido() );
-        userResponse.setEmail( userDTO.getEmail() );
-        userResponse.setFechaCreacion( userDTO.getFechaCreacion() );
         userResponse.setId( userDTO.getId() );
+        userResponse.setEmail( userDTO.getEmail() );
         userResponse.setNombre( userDTO.getNombre() );
+        userResponse.setApellido( userDTO.getApellido() );
         userResponse.setTelefono( userDTO.getTelefono() );
+        userResponse.setFechaCreacion( userDTO.getFechaCreacion() );
 
         return userResponse;
     }

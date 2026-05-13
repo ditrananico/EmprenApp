@@ -7,8 +7,11 @@ import org.emprenApp.detalle_pedido.domain.DetallePedido;
 import org.emprenApp.detalle_pedido.domain.DetallePedidoRepository;
 import org.emprenApp.detalle_pedido.infrastructure.request.DetallePedidoAddRequest;
 import org.emprenApp.detalle_pedido.infrastructure.response.DetallePedidoResponse;
+import org.emprenApp.pedido.application.mapper.PedidoMapper;
+import org.emprenApp.pedido.application.service.PedidoService;
 import org.emprenApp.producto.application.service.ProductoService;
 import org.emprenApp.producto.application.dto.ProductoDTO;
+import org.emprenApp.shared.application.exception.BaseException;
 import org.emprenApp.shared.application.exception.GenericException;
 import org.emprenApp.shared.application.exception.NotFoundException;
 import org.slf4j.Logger;
@@ -33,12 +36,16 @@ public class DetallePedidoService implements DetallePedidoAdapter {
     private ProductoService productoService;
 
     @Override
-    public List<DetallePedidoResponse> obtenerDetallesPorPedido(Long pedidoId) throws GenericException {
+    public List<DetallePedidoResponse> obtenerDetallesPorPedido(Long pedidoId) throws BaseException {
         try {
             logger.info("Obteniendo detalles para pedido ID: " + pedidoId);
             List<DetallePedido> detalles = detallePedidoRepository.findByPedidoId(pedidoId);
-
+            if (detalles == null || detalles.isEmpty()){
+                throw new NotFoundException();
+            }
             return DetallePedidoMapper.INSTANCE.toListResponse(detalles);
+        } catch (NotFoundException e) {
+            throw e;
         } catch (Exception e) {
             logger.error("Error al obtener detalles por pedido ID: " + pedidoId, e);
             throw new GenericException();
@@ -46,7 +53,7 @@ public class DetallePedidoService implements DetallePedidoAdapter {
     }
 
     @Override
-    public DetallePedidoResponse agregarDetalle(DetallePedidoAddRequest request) throws GenericException, NotFoundException {
+    public DetallePedidoResponse agregarDetalle(DetallePedidoAddRequest request) throws BaseException {
         try {
             logger.info("Iniciando proceso para agregar detalle de producto ID: {} al pedido", request.getProductoId());
             ProductoDTO producto = productoService.getProductoByID(request.getProductoId());
@@ -77,7 +84,7 @@ public class DetallePedidoService implements DetallePedidoAdapter {
     }
 
     @Override
-    public void eliminarDetalle(Long id) throws GenericException, NotFoundException {
+    public void eliminarDetalle(Long id) throws BaseException {
         if (!detallePedidoRepository.existsById(id)) throw new NotFoundException();
         detallePedidoRepository.deleteById(id);
     }

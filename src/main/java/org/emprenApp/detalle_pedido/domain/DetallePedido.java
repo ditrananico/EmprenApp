@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.emprenApp.pedido.domain.Pedido;
+import org.emprenApp.producto.domain.Producto;
 
 import java.math.BigDecimal;
 
@@ -25,7 +27,7 @@ public class DetallePedido {
     @Column(name = "PRECIO_UNITARIO", precision = 10, scale = 2, nullable = false)
     private BigDecimal precioUnitario;
 
-    /* 
+
     @ManyToOne
     @JoinColumn(name = "PEDIDO_ID", nullable = false)
     private Pedido pedidoId; // pedido_id (FK a la tabla de pedidos)
@@ -33,5 +35,5 @@ public class DetallePedido {
     @ManyToOne
     @JoinColumn(name = "PRODUCTO_ID", nullable = false)
     private Producto productoId; // producto_id (FK a la tabla de productos)
-    */
+
 }

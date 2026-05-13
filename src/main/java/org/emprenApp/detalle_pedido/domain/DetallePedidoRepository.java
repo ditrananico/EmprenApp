@@ -1,5 +1,6 @@
 package org.emprenApp.detalle_pedido.domain;
 
+import org.emprenApp.pedido.domain.Pedido;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
