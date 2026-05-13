@@ -5,10 +5,7 @@ import org.emprenApp.user.application.dto.UserDTO;
 import org.emprenApp.user.domain.User;
 import org.emprenApp.user.infrastructure.request.UserCreateRequest;
 import org.emprenApp.user.infrastructure.request.UserUpdateRequest;
-import org.mapstruct.AfterMapping;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
 
@@ -28,7 +25,10 @@ public interface UserMapper {
 
     UserDTO toDTO(User user);
 
-    Page<UserDTO> toPageDTO(Page<User> users);
+    default Page<UserDTO> toPageDTO(Page<User> users){
+        return users.map(this::toDTO);
+    }
+    User toEntity(UserUpdateRequest userUpdateRequest);
 
     @AfterMapping
     default void setDefaultValues(@MappingTarget User user) {
@@ -41,7 +41,8 @@ public interface UserMapper {
         }
     }
 
-    default String limpiarBlancosEnElNombre(String nombre){
+    @Named("limpiarBlancosEnElNombre")
+    static String limpiarBlancosEnElNombre(String nombre){
         if (nombre == null){
             return null;
         }

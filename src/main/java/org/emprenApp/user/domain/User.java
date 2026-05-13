@@ -1,9 +1,7 @@
 package org.emprenApp.user.domain;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.emprenApp.shared.application.enums.EstadoUserEnum;
 
 import java.sql.Timestamp;
@@ -11,7 +9,6 @@ import java.sql.Timestamp;
 @Entity
 @Table(name = "users")
 @Data
-@AllArgsConstructor @NoArgsConstructor
 public class User {
 
     @Id
