@@ -34,7 +34,7 @@ public class PedidoService implements PedidoAdapter {
 
     @Override
     public PedidoDTO getPedidoByID(Long id) throws GenericException, NotFoundException {
-        if (id == null || id < 0) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
+        if (id == null || id < 0) throw new GenericException(ErrorCodeEnum.INVALID_PARAMETERS);
 
         return PedidoMapper.INSTANCE.toDTO(pedidoRepository.findById(id)
                 .orElseThrow(NotFoundException::new));

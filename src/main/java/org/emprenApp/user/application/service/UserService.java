@@ -18,7 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -30,7 +29,7 @@ public class UserService implements UserAdapter {
 
     public UserDTO createUser(UserCreateRequest createRequest) throws GenericException{
         try {
-            if (createRequest ==null) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
+            if (createRequest ==null) throw new GenericException(ErrorCodeEnum.INVALID_PARAMETERS);
 
             userValidationService.validateEmail(createRequest.getEmail());
 
@@ -51,7 +50,7 @@ public class UserService implements UserAdapter {
     }
 
     public UserDTO getUser(String email) throws GenericException, NotFoundException {
-        if (email == null) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
+        if (email == null) throw new GenericException(ErrorCodeEnum.INVALID_PARAMETERS);
 
         return UserMapper.INSTANCE.toDTO(
                 userRepository.findByEmailAndEstado(email, EstadoUserEnum.ACTIVO)
@@ -60,7 +59,7 @@ public class UserService implements UserAdapter {
 
     @Override
     public UserDTO getUserByID(Long id) throws GenericException, NotFoundException {
-        if (id == null || id < 0) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
+        if (id == null || id < 0) throw new GenericException(ErrorCodeEnum.INVALID_PARAMETERS);
 
         Optional<User> user = userRepository.findByIdAndEstado(id, EstadoUserEnum.ACTIVO);
         user.orElseThrow(NotFoundException::new);
@@ -72,17 +71,33 @@ public class UserService implements UserAdapter {
         try {
             Page<User> users = userRepository.findAllByEstado(EstadoUserEnum.ACTIVO, pageable);
             return UserMapper.INSTANCE.toPageDTO(users);
-        }catch(Exception e){
-            logger.error("Error al obtener los usuarios", e);
+        }catch(DataAccessException e){
+            logger.error("Error de acceso a datos al obtener usuarios: {}", e.getMessage());
             throw new GenericException();
         }
 
     }
 
     @Override
-    public void deleteUser(String email) throws GenericException, NotFoundException {
+    public String deleteUser(String email) throws GenericException, NotFoundException {
+        if (email == null) throw new GenericException(ErrorCodeEnum.INVALID_PARAMETERS);
+
+        Optional<User> userOptional = userRepository.findByEmailAndEstado(email, EstadoUserEnum.ACTIVO);
+        if (userOptional.isEmpty()) {
+            throw new NotFoundException();
+        }
+        User user = userOptional.get();
+        userRepository.delete(user);
+
+        logger.info("Usuario eliminado exitosamente: {}", email);
+        return "Usuario eliminado exitosamente";
+    }
+
+
+    @Override
+    public String deleteUserLogical(String email) throws GenericException, NotFoundException {
         try {
-            if (email == null) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
+            if (email == null) throw new GenericException(ErrorCodeEnum.INVALID_PARAMETERS);
 
             Optional<User> userOptional = userRepository.findByEmailAndEstado(email, EstadoUserEnum.ACTIVO);
             if (userOptional.isEmpty()) {
@@ -92,8 +107,12 @@ public class UserService implements UserAdapter {
             user.setEstado(EstadoUserEnum.INACTIVO);
             userRepository.save(user);
 
-            logger.info("Usuario eliminado exitosamente: {}", email);
-       } catch (Exception e) {
+            logger.info("Usuario eliminado (estado cambiado a INACTIVO): {}", email);
+            return "Usuario eliminado exitosamente";
+        } catch (NotFoundException e) {
+            logger.warn("Usuario no encontrado para eliminación: {}", email);
+            throw e;
+        }  catch (Exception e) {
             logger.error("Error inesperado al eliminar usuario:", e);
             throw new GenericException();
         }
@@ -103,14 +122,18 @@ public class UserService implements UserAdapter {
     public UserDTO updateUser(UserUpdateRequest userUpdateRequest) throws GenericException, NotFoundException {
 
         if (userUpdateRequest == null || userUpdateRequest.getEmail() == null) {
-            throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
+            throw new GenericException(ErrorCodeEnum.INVALID_PARAMETERS);
         }
 
         Optional<User> userOptional = userRepository.findByEmailAndEstado(userUpdateRequest.getEmail(), EstadoUserEnum.ACTIVO);
         if (userOptional.isEmpty()) {
             throw new NotFoundException();
         }
-        User user = UserMapper.INSTANCE.toEntity(userUpdateRequest);
+
+        User user = userOptional.get();
+        if (userUpdateRequest.getNombre() != null) user.setNombre(userUpdateRequest.getNombre());
+        if (userUpdateRequest.getApellido() != null) user.setApellido(userUpdateRequest.getApellido());
+        if (userUpdateRequest.getTelefono() != null) user.setTelefono(userUpdateRequest.getTelefono());
 
         userRepository.save(user);
         logger.info("Usuario actualizado: {}", userUpdateRequest.getEmail());
@@ -118,9 +141,9 @@ public class UserService implements UserAdapter {
     }
 
     @Override
-    public void updateStatusUser(Long id) throws GenericException, NotFoundException {
+    public String updateStatusUser(Long id) throws GenericException, NotFoundException {
 
-        if (id == null || id < 0) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
+        if (id == null || id < 0) throw new GenericException(ErrorCodeEnum.INVALID_PARAMETERS);
 
         Optional<User> userOptional = userRepository.findByIdAndEstado(id, EstadoUserEnum.ACTIVO);
         userOptional.orElseThrow(NotFoundException::new);
@@ -130,6 +153,8 @@ public class UserService implements UserAdapter {
         userRepository.save(user);
 
         logger.info("Estado del usuario actualizado: {}", user.getEstado());
+
+        return "Estado del usuario actualizado exitosamente";
     }
 
 }
