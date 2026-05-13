@@ -18,7 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -30,7 +29,7 @@ public class UserService implements UserAdapter {
 
     public UserDTO createUser(UserCreateRequest createRequest) throws GenericException{
         try {
-            if (createRequest ==null) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
+            if (createRequest ==null) throw new GenericException(ErrorCodeEnum.INVALID_PARAMETERS);
 
             userValidationService.validateEmail(createRequest.getEmail());
 
@@ -51,7 +50,7 @@ public class UserService implements UserAdapter {
     }
 
     public UserDTO getUser(String email) throws GenericException, NotFoundException {
-        if (email == null) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
+        if (email == null) throw new GenericException(ErrorCodeEnum.INVALID_PARAMETERS);
 
         return UserMapper.INSTANCE.toDTO(
                 userRepository.findByEmailAndEstado(email, EstadoUserEnum.ACTIVO)
@@ -60,7 +59,7 @@ public class UserService implements UserAdapter {
 
     @Override
     public UserDTO getUserByID(Long id) throws GenericException, NotFoundException {
-        if (id == null || id < 0) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
+        if (id == null || id < 0) throw new GenericException(ErrorCodeEnum.INVALID_PARAMETERS);
 
         Optional<User> user = userRepository.findByIdAndEstado(id, EstadoUserEnum.ACTIVO);
         user.orElseThrow(NotFoundException::new);
@@ -82,7 +81,7 @@ public class UserService implements UserAdapter {
     @Override
     public void deleteUser(String email) throws GenericException, NotFoundException {
         try {
-            if (email == null) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
+            if (email == null) throw new GenericException(ErrorCodeEnum.INVALID_PARAMETERS);
 
             Optional<User> userOptional = userRepository.findByEmailAndEstado(email, EstadoUserEnum.ACTIVO);
             if (userOptional.isEmpty()) {
@@ -103,7 +102,7 @@ public class UserService implements UserAdapter {
     public UserDTO updateUser(UserUpdateRequest userUpdateRequest) throws GenericException, NotFoundException {
 
         if (userUpdateRequest == null || userUpdateRequest.getEmail() == null) {
-            throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
+            throw new GenericException(ErrorCodeEnum.INVALID_PARAMETERS);
         }
 
         Optional<User> userOptional = userRepository.findByEmailAndEstado(userUpdateRequest.getEmail(), EstadoUserEnum.ACTIVO);
@@ -120,7 +119,7 @@ public class UserService implements UserAdapter {
     @Override
     public void updateStatusUser(Long id) throws GenericException, NotFoundException {
 
-        if (id == null || id < 0) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
+        if (id == null || id < 0) throw new GenericException(ErrorCodeEnum.INVALID_PARAMETERS);
 
         Optional<User> userOptional = userRepository.findByIdAndEstado(id, EstadoUserEnum.ACTIVO);
         userOptional.orElseThrow(NotFoundException::new);
