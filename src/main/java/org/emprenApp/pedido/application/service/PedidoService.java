@@ -17,6 +17,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import static org.emprenApp.shared.application.enums.ErrorCodeEnum.GENERIC_ERROR;
+
 
 @Service
 public class PedidoService implements PedidoAdapter {
@@ -66,10 +68,31 @@ public class PedidoService implements PedidoAdapter {
     }
 
     @Override
-    public String cancelPedido(Long id) throws GenericException, NotFoundException {
-        Pedido pedido = pedidoRepository.findById(id).orElseThrow(NotFoundException::new);
-        pedido.setStatus(EstadoPedidoEnum.CANCELADO);
-        pedidoRepository.save(pedido);
-        return "Pedido con ID " + id + " cancelado correctamente";
+    public boolean cancelPedido(Long id) throws GenericException, NotFoundException {
+        try {
+            logger.info("Solicitud para cancelar pedido ID: {}", id);
+            Pedido pedido = pedidoRepository.findById(id).orElseThrow(NotFoundException::new);
+
+            //Ver casos donde no se puede cancelar el pedido -- Ver exceptions
+
+            if (pedido.getStatus() == EstadoPedidoEnum.CANCELADO) {
+                logger.warn("El pedido ID: {} ya se encuentra cancelado.", id);
+                return false;
+            }
+
+            if (pedido.getStatus() == EstadoPedidoEnum.FINALIZADO) {
+                logger.error("No se puede cancelar el pedido ID: {} porque ya fue entregado.", id);
+                throw new GenericException(GENERIC_ERROR);
+            }
+
+            pedido.setStatus(EstadoPedidoEnum.CANCELADO);
+            pedidoRepository.save(pedido);
+            logger.info("Pedido ID: {} cancelado exitosamente en la base de datos.", id);
+            return true;
+
+        }catch ( Exception e ) {
+            logger.error("Error inesperado al cancelar el pedido ID: {}. Detalles del error: {}", id, e.getMessage(), e);
+            throw new GenericException(GENERIC_ERROR);
+        }
     }
 }

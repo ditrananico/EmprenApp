@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,8 +43,22 @@ public class PedidoController {
 
     @DeleteMapping("/cancel/{id}")
     public ResponseEntity<String> cancelPedido(@PathVariable Long id) throws BaseException {
-        logger.info("Cancelando pedido: " + id);
-        return ResponseEntity.ok(pedidoAdapter.cancelPedido(id));
+
+        logger.info("REST Request - DELETE /cancel/{} - Solicitud de cancelación", id);
+
+        if (id == null || id <= 0) {
+            logger.warn("ID de pedido inválido para cancelación: {}", id);
+            return new ResponseEntity<>("El ID del pedido debe ser un número positivo", HttpStatus.BAD_REQUEST);
+        }
+
+        boolean fueCancelado = pedidoAdapter.cancelPedido(id);
+        if (fueCancelado) {
+            logger.info("REST Response - Pedido {} cancelado con éxito", id);
+            return ResponseEntity.ok("Pedido cancelado exitosamente");
+        } else {
+            logger.info("REST Response - El pedido {} no requirió cambios (ya estaba cancelado)", id);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("El pedido ya se encontraba en estado CANCELADO o no se pudo procesar.");
+        }
     }
 
     //revisar los ultimos dos endpoint - desarrollar el create

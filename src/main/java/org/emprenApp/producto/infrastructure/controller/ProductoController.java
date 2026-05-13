@@ -6,6 +6,7 @@ import org.emprenApp.producto.infrastructure.mapper.ProductoInfrastructureMapper
 import org.emprenApp.producto.infrastructure.request.ProductCreateRequest;
 import org.emprenApp.producto.infrastructure.request.ProductUpdateRequest;
 import org.emprenApp.producto.infrastructure.response.ProductResponse;
+import org.emprenApp.shared.application.enums.ErrorCodeEnum;
 import org.emprenApp.shared.application.exception.BaseException;
 import org.emprenApp.shared.application.exception.GenericException;
 import org.slf4j.Logger;

@@ -28,15 +28,7 @@ public class ProductoService implements ProductoAdapter {
     @Override
     public ProductoDTO createProducto(ProductCreateRequest request) throws GenericException {
         try {
-            if (request == null) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
-            Producto producto = new Producto();
-            producto.setTitulo(request.getTitulo());
-            producto.setDescripcion(request.getDescripcion());
-            producto.setPrecio(request.getPrecio());
-            producto.setStock(request.getStock());
-            producto.setStockMinimo(request.getStockMinimo());
-            producto.setActive(true);
-            Producto created = productoRepository.save(producto);
+            Producto created = productoRepository.save(ProductoMapper.INSTANCE.toEntity(request));
             logger.info("Producto creado: {}", created.getTitulo());
             return ProductoMapper.INSTANCE.toDTO(created);
         } catch (Exception e) {

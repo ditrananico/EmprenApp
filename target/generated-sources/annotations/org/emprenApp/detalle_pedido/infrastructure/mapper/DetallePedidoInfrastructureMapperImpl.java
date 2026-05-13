@@ -6,7 +6,7 @@ import org.emprenApp.detalle_pedido.infrastructure.response.DetallePedidoRespons
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-04-16T14:50:00-0300",
+    date = "2026-05-13T17:08:00-0300",
     comments = "version: 1.5.5.Final, compiler: Eclipse JDT (IDE) 3.46.0.v20260407-0427, environment: Java 21.0.10 (Eclipse Adoptium)"
 )
 public class DetallePedidoInfrastructureMapperImpl implements DetallePedidoInfrastructureMapper {

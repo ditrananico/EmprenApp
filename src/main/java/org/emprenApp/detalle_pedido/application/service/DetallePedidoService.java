@@ -1,6 +1,8 @@
 package org.emprenApp.detalle_pedido.application.service;
 
+import jakarta.validation.ValidationException;
 import org.emprenApp.detalle_pedido.application.DetallePedidoAdapter;
+import org.emprenApp.detalle_pedido.application.mapper.DetallePedidoMapper;
 import org.emprenApp.detalle_pedido.domain.DetallePedido;
 import org.emprenApp.detalle_pedido.domain.DetallePedidoRepository;
 import org.emprenApp.detalle_pedido.infrastructure.request.DetallePedidoAddRequest;
@@ -15,7 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+
+import static org.emprenApp.shared.application.enums.ErrorCodeEnum.GENERIC_ERROR;
+
 
 @Service
 public class DetallePedidoService implements DetallePedidoAdapter {
@@ -29,39 +33,46 @@ public class DetallePedidoService implements DetallePedidoAdapter {
     private ProductoService productoService;
 
     @Override
-    public List<DetallePedidoResponse> obtenerDetallesPorPedido(Long pedidoId) {
-        List<DetallePedido> detalles = detallePedidoRepository.findByPedidoId(pedidoId);
-        return detalles.stream().map(d -> DetallePedidoResponse.builder()
-                .id(d.getId())
-                .precioUnitario(d.getPrecioUnitario())
-                .cantidad(d.getCantidad())
-                .subtotal(d.getPrecioUnitario() * d.getCantidad())
-                .build()).collect(Collectors.toList());
+    public List<DetallePedidoResponse> obtenerDetallesPorPedido(Long pedidoId) throws GenericException {
+        try {
+            logger.info("Obteniendo detalles para pedido ID: " + pedidoId);
+            List<DetallePedido> detalles = detallePedidoRepository.findByPedidoId(pedidoId);
+
+            return DetallePedidoMapper.INSTANCE.toListResponse(detalles);
+        } catch (Exception e) {
+            logger.error("Error al obtener detalles por pedido ID: " + pedidoId, e);
+            throw new GenericException();
+        }
     }
 
     @Override
     public DetallePedidoResponse agregarDetalle(DetallePedidoAddRequest request) throws GenericException, NotFoundException {
         try {
+            logger.info("Iniciando proceso para agregar detalle de producto ID: {} al pedido", request.getProductoId());
             ProductoDTO producto = productoService.getProductoByID(request.getProductoId());
             if (producto.getStock() < request.getCantidad()) {
-                throw new GenericException(); 
+                throw new ValidationException("Stock insuficiente para el producto: " + producto.getDescripcion());
             }
             
             DetallePedido detalle = new DetallePedido();
             detalle.setCantidad(request.getCantidad());
-            detalle.setPrecioUnitario(producto.getPrecio().doubleValue());
+            detalle.setPrecioUnitario(producto.getPrecio());
+
+            //Falta la relacion con el Pedido
+
+            DetallePedido detalleGuardado = detallePedidoRepository.save(detalle);
+            logger.info("Detalle de pedido guardado exitosamente con ID: {}", detalleGuardado.getId());
             
-            detallePedidoRepository.save(detalle);
-            
-            return DetallePedidoResponse.builder()
-                    .id(detalle.getId())
-                    .precioUnitario(detalle.getPrecioUnitario())
-                    .cantidad(detalle.getCantidad())
-                    .subtotal(detalle.getPrecioUnitario() * detalle.getCantidad())
-                    .build();
+            return DetallePedidoMapper.INSTANCE.toResponse(detalleGuardado);
+        } catch (ValidationException e) {
+            logger.error("Error de validación al agregar detalle: {}", e.getMessage());
+            throw e;
+        } catch (NotFoundException e) {
+            logger.error("No se encontró el producto con ID: {}", request.getProductoId());
+            throw e;
         } catch (Exception e) {
-            logger.error("Error al agregar detalle", e);
-            throw new GenericException();
+            logger.error("Error inesperado al agregar detalle de pedido", e);
+            throw new GenericException(GENERIC_ERROR);
         }
     }
 

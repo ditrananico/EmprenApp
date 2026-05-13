@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 
 @Entity
 @Table(name = "DETALLE_PEDIDO")
@@ -21,7 +23,7 @@ public class DetallePedido {
     private Integer cantidad;
 
     @Column(name = "PRECIO_UNITARIO", precision = 10, scale = 2, nullable = false)
-    private Double precioUnitario;
+    private BigDecimal precioUnitario;
 
     /* 
     @ManyToOne
