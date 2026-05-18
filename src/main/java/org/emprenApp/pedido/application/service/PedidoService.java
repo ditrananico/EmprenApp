@@ -76,13 +76,13 @@ public class PedidoService implements PedidoAdapter {
             //Ver casos donde no se puede cancelar el pedido -- Ver exceptions
 
             if (pedido.getStatus() == EstadoPedidoEnum.CANCELADO) {
-                logger.warn("El pedido ID: {} ya se encuentra cancelado.", id);
+                logger.info("El pedido ID: {} ya se encuentra cancelado.", id);
                 return false;
             }
 
             if (pedido.getStatus() == EstadoPedidoEnum.FINALIZADO) {
-                logger.error("No se puede cancelar el pedido ID: {} porque ya fue entregado.", id);
-                throw new GenericException(GENERIC_ERROR);
+                logger.info("No se puede cancelar el pedido ID: {} porque ya fue entregado.", id);
+                return false;
             }
 
             pedido.setStatus(EstadoPedidoEnum.CANCELADO);

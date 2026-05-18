@@ -2,13 +2,10 @@ package org.emprenApp.detalle_pedido.application;
 
 import org.emprenApp.detalle_pedido.infrastructure.request.DetallePedidoAddRequest;
 import org.emprenApp.detalle_pedido.infrastructure.response.DetallePedidoResponse;
-import org.emprenApp.shared.application.exception.GenericException;
-import org.emprenApp.shared.application.exception.NotFoundException;
-
-import java.util.List;
+import org.emprenApp.shared.application.exception.BaseException;
 
 public interface DetallePedidoAdapter {
-    List<DetallePedidoResponse> obtenerDetallesPorPedido(Long pedidoId) throws GenericException;
-    DetallePedidoResponse agregarDetalle(DetallePedidoAddRequest request) throws GenericException, NotFoundException;
-    void eliminarDetalle(Long id) throws GenericException, NotFoundException;
+    DetallePedidoResponse getDetallePedidoByPedidoId(Long pedidoId) throws BaseException;
+    DetallePedidoResponse agregarDetallePedido(DetallePedidoAddRequest request) throws BaseException;
+    void eliminarDetalle(Long id) throws BaseException;
 }

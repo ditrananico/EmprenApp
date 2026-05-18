@@ -16,4 +16,10 @@ public class GlobalHandlerException extends ResponseEntityExceptionHandler {
         this.logger.error(ex.getMessage(), ex);
         return new ResponseEntity<>(new BaseResponse(ErrorCodeEnum.GENERIC_ERROR), HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<Object> handleResourceNotFound(NotFoundException ex) {
+        this.logger.error(ex.getMessage(), ex);
+        return new ResponseEntity<>(new BaseResponse(ErrorCodeEnum.NOT_FOUND), HttpStatus.NOT_FOUND);
+    }
 }

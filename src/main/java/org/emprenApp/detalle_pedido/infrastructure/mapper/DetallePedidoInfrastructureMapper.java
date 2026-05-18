@@ -9,5 +9,5 @@ import org.mapstruct.factory.Mappers;
 public interface DetallePedidoInfrastructureMapper {
     DetallePedidoInfrastructureMapper INSTANCE = Mappers.getMapper(DetallePedidoInfrastructureMapper.class);
 
-    DetallePedidoResponse toResponse(DetallePedido detallePedido);
+    //DetallePedidoResponse toResponse(DetallePedido detallePedido);
 }

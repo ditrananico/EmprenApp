@@ -39,13 +39,13 @@ public class ProductoService implements ProductoAdapter {
 
     @Override
     public ProductoDTO getProductoByID(Long id) throws GenericException, NotFoundException {
-        if (id == null || id < 0) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
+        if (id == null || id < 0) throw new GenericException(ErrorCodeEnum.INVALID_PARAMETERS);
         return ProductoMapper.INSTANCE.toDTO(productoRepository.findById(id).orElseThrow(NotFoundException::new));
     }
 
     @Override
     public ProductoDTO updateProducto(ProductUpdateRequest request) throws GenericException, NotFoundException {
-        if (request == null || request.getId() == null) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
+        if (request == null || request.getId() == null) throw new GenericException(ErrorCodeEnum.INVALID_PARAMETERS);
         Producto producto = productoRepository.findById(request.getId()).orElseThrow(NotFoundException::new);
         producto.setTitulo(request.getTitulo());
         producto.setDescripcion(request.getDescripcion());
@@ -59,7 +59,7 @@ public class ProductoService implements ProductoAdapter {
 
     @Override
     public String deleteProducto(Long id) throws GenericException, NotFoundException {
-        if (id == null) throw new GenericException(ErrorCodeEnum.PARAMETROS_INCORRECTOS);
+        if (id == null) throw new GenericException(ErrorCodeEnum.INVALID_PARAMETERS);
         if (!productoRepository.existsById(id)) throw new NotFoundException();
         productoRepository.deleteById(id);
         return "Producto eliminado exitosamente";

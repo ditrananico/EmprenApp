@@ -3,9 +3,9 @@ package org.emprenApp.detalle_pedido.infrastructure.controller;
 import org.emprenApp.detalle_pedido.application.DetallePedidoAdapter;
 import org.emprenApp.detalle_pedido.infrastructure.request.DetallePedidoAddRequest;
 import org.emprenApp.detalle_pedido.infrastructure.response.DetallePedidoResponse;
-import org.emprenApp.pedido.infrastructure.controller.PedidoController;
-import org.emprenApp.shared.application.exception.GenericException;
-import org.emprenApp.shared.application.exception.NotFoundException;
+import org.emprenApp.shared.application.application.ValidateGeneric;
+import org.emprenApp.shared.application.enums.ErrorCodeEnum;
+import org.emprenApp.shared.application.exception.BaseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,41 +13,42 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
-import static org.emprenApp.shared.application.enums.ErrorCodeEnum.PARAMETROS_INCORRECTOS;
 
 @RestController
 @RequestMapping("v1/detalle-pedido")
 public class DetallePedidoController {
 
-    private final static Logger logger = LoggerFactory.getLogger(PedidoController.class);
+    private final static Logger logger = LoggerFactory.getLogger(DetallePedidoController.class);
 
     @Autowired
     private DetallePedidoAdapter detallePedidoAdapter;
+    private ValidateGeneric validate;
 
-    @GetMapping("/pedido/{pedidoId}")
-    public ResponseEntity<List<DetallePedidoResponse>> obtenerDetallesPorPedido(@PathVariable Long pedidoId) throws GenericException {
-        logger.info("REST Request - GET /pedido/{} para obtener detalles", pedidoId);
-        return ResponseEntity.ok(detallePedidoAdapter.obtenerDetallesPorPedido(pedidoId));
+
+    @GetMapping("/{pedidoId}")
+    public ResponseEntity<DetallePedidoResponse> obtenerDetallePedidoId(@PathVariable Long pedidoId) throws BaseException {
+        logger.info("REST Request - GET /{} para obtener detallePedido", pedidoId);
+        validate.validateId(pedidoId);
+        return ResponseEntity.ok(detallePedidoAdapter.getDetallePedidoByPedidoId(pedidoId));
     }
 
-    @PostMapping("/add")
-    public ResponseEntity<DetallePedidoResponse> agregarDetalle(@RequestBody DetallePedidoAddRequest request) throws GenericException, NotFoundException {
+    @PostMapping("/")
+    public ResponseEntity<DetallePedidoResponse> agregarDetallePedido(@RequestBody DetallePedidoAddRequest request) throws BaseException {
         logger.info("REST Request - POST /add - Agregando detalle para pedido ID: {}", request.getPedidoId());
-        DetallePedidoResponse response = detallePedidoAdapter.agregarDetalle(request);
+        validate.validateNotNull(request);
+        if (request.getItemsDetallePedido() == null || request.getItemsDetallePedido().isEmpty()) {
+            throw new BaseException(ErrorCodeEnum.INVALID_PARAMETERS);
+        }
+        DetallePedidoResponse response = detallePedidoAdapter.agregarDetallePedido(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @DeleteMapping("/remove/{id}")
-    public ResponseEntity<String> eliminarDetalle(@PathVariable Long id) throws GenericException, NotFoundException {
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> eliminarDetalle(@PathVariable Long id) throws BaseException{
         logger.info("REST Request - DELETE /remove/{} - Intento de eliminación", id);
-        if (id == null || id <= 0) {
-            logger.info("Se intentó eliminar un detalle con un ID inválido: {}", id);
-            throw new GenericException(PARAMETROS_INCORRECTOS);
-        }
+        validate.validateId(id);
         detallePedidoAdapter.eliminarDetalle(id);
-        logger.info("REST Response - Detalle con ID {} eliminado exitosamente", id);
+
         return ResponseEntity.ok("Detalle eliminado exitosamente");
     }
 }

@@ -2,7 +2,6 @@ package org.emprenApp.emprendimiento.infrastructure.controller;
 
 import org.emprenApp.emprendimiento.application.EmprendimientoAdapter;
 import org.emprenApp.emprendimiento.application.dto.EmprendimientoDTO;
-import org.emprenApp.emprendimiento.application.service.EmprendimientoService;
 import org.emprenApp.emprendimiento.infrastructure.mapper.EmprendimientoInfrastructureMapper;
 import org.emprenApp.emprendimiento.infrastructure.request.EmprendimientoCreateRequest;
 import org.emprenApp.emprendimiento.infrastructure.response.EmprendimientoResponse;
