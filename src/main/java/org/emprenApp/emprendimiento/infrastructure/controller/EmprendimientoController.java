@@ -6,6 +6,7 @@ import org.emprenApp.emprendimiento.infrastructure.mapper.EmprendimientoInfrastr
 import org.emprenApp.emprendimiento.infrastructure.request.EmprendimientoCreateRequest;
 import org.emprenApp.emprendimiento.infrastructure.request.EmprendimientoUpdateRequest;
 import org.emprenApp.emprendimiento.infrastructure.response.EmprendimientoResponse;
+import org.emprenApp.shared.application.enums.EstadoEmprendimientoEnum;
 import org.emprenApp.shared.application.exception.BaseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,9 +62,17 @@ public class EmprendimientoController {
         return ResponseEntity.ok(response);
     }
 
-    // AGREGAR MÉTODO CAMBIAR ESTADO, enviar por query params GOOGLEAR (o chatgptear)
-    // @PutMapping("/status/{id}")
-
+    @PutMapping("/status/{id}")
+    public ResponseEntity<EmprendimientoResponse> updateEmprendimientoStatus(
+            @PathVariable Long id,
+            @RequestParam @Validated EstadoEmprendimientoEnum estado
+    ) throws BaseException {
+        logger.info("Se inicializa la actualización de estado del emprendimiento con id: {}", id);
+        EmprendimientoDTO emprendimientoDTO =
+                emprendimientoAdapter.updateEmprendimiento(id, estado);
+        EmprendimientoResponse response = EmprendimientoInfrastructureMapper.INSTANCE.toResponse(emprendimientoDTO);
+        return ResponseEntity.ok(response);
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEmprendimiento(@PathVariable Long id) throws BaseException {
