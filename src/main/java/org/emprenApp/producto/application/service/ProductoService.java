@@ -7,7 +7,6 @@ import org.emprenApp.producto.domain.Producto;
 import org.emprenApp.producto.domain.ProductoRepository;
 import org.emprenApp.producto.infrastructure.request.ProductCreateRequest;
 import org.emprenApp.producto.infrastructure.request.ProductUpdateRequest;
-import org.emprenApp.shared.application.enums.ErrorCodeEnum;
 import org.emprenApp.shared.application.exception.BaseException;
 import org.emprenApp.shared.application.exception.GenericException;
 import org.emprenApp.shared.application.exception.NotFoundException;
@@ -61,7 +60,7 @@ public class ProductoService implements ProductoAdapter {
             return ProductoMapper.INSTANCE.toDTO(producto);
         } catch (Exception e) {
             logger.error("Error al actualizar producto", e);
-            throw new GenericException(e);
+            throw new GenericException();
         }
     }
 
