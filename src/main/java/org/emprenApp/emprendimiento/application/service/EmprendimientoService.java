@@ -1,5 +1,6 @@
 package org.emprenApp.emprendimiento.application.service;
 
+import lombok.RequiredArgsConstructor;
 import org.emprenApp.emprendimiento.application.EmprendimientoAdapter;
 import org.emprenApp.emprendimiento.application.dto.EmprendimientoDTO;
 import org.emprenApp.emprendimiento.application.mapper.EmprendimientoMapper;
@@ -21,12 +22,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class EmprendimientoService implements EmprendimientoAdapter {
 
     private final static Logger logger = LoggerFactory.getLogger(EmprendimientoService.class);
 
-    @Autowired private EmprendimientoRepository repository;
-    @Autowired private EmprendimientoValidationService validationService;
+    private final EmprendimientoRepository repository;
+    private final EmprendimientoValidationService validationService;
 
     @Override
     public EmprendimientoDTO createEmprendimiento(EmprendimientoCreateRequest emprendimientoCreateRequest) throws BaseException {

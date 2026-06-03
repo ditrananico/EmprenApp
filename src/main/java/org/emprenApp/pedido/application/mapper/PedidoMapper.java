@@ -13,5 +13,9 @@ public interface PedidoMapper {
 
     PedidoDTO toDTO(Pedido pedido);
 
-    Page<PedidoDTO> toPageDTO(Page<Pedido> page);
+    Pedido toEntity(PedidoDTO pedidoDTO);
+
+    default Page<PedidoDTO> toPageDTO(Page<Pedido> page){
+        return page.map(this::toDTO);
+    }
 }
