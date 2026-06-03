@@ -3,8 +3,6 @@ package org.emprenApp.detalle_pedido.application;
 import org.emprenApp.detalle_pedido.infrastructure.request.DetallePedidoAddRequest;
 import org.emprenApp.detalle_pedido.infrastructure.response.DetallePedidoResponse;
 import org.emprenApp.shared.application.exception.BaseException;
-import org.emprenApp.shared.application.exception.GenericException;
-import org.emprenApp.shared.application.exception.NotFoundException;
 
 import java.util.List;
 

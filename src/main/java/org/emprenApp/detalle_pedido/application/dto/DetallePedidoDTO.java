@@ -5,15 +5,17 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class DetallePedidoDTO {
     private Long id;
     private Long pedidoId;
-    private Long productoId;
-    private Double precioUnitario;
-    private Integer cantidad;
-    private Double subtotal; // Campo calculado
+    private List<Long> productoIds;
+    private List<BigDecimal> precioUnitario;
+    private List<Integer> cantidad;
+    private BigDecimal total;
 }

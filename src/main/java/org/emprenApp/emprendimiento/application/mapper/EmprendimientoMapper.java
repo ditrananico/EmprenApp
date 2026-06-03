@@ -17,9 +17,7 @@ public interface EmprendimientoMapper {
 
     EmprendimientoDTO toDTO(Emprendimiento emprendimiento);
 
-    default Page<EmprendimientoDTO> toPageDTO(Page<Emprendimiento> emprendimientos) {
-        return emprendimientos.map(this::toDTO);
-    }
+    Page<EmprendimientoDTO> toPageDTO(Page<Emprendimiento> emprendimientos);
 
     @AfterMapping
     default void setDefaultValues(@MappingTarget Emprendimiento emprendimiento) {
