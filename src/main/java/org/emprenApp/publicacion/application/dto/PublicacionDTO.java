@@ -15,5 +15,5 @@ public class PublicacionDTO {
     private String descripcion;
     private Timestamp fechaCreacion;
     private Integer boost;
-
+    //todo agregar estado
 }

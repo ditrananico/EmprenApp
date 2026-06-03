@@ -96,3 +96,19 @@ CREATE TABLE emprenapp.usuarios (
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4
   COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE emprenapp.publicaciones (
+                                         id BIGINT NOT NULL AUTO_INCREMENT,
+                                         titulo VARCHAR(100) NOT NULL,
+                                         descripcion VARCHAR(250) NOT NULL,
+                                         fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                         boost INT NOT NULL DEFAULT 0,
+                                         estado VARCHAR(20) NOT NULL,
+                                         PRIMARY KEY (id),
+                                         INDEX idx_publicaciones_estado (estado),
+                                         INDEX idx_publicaciones_fecha_creacion (fecha_creacion),
+                                         INDEX idx_publicaciones_boost (boost),
+                                         INDEX idx_publicaciones_estado_boost (estado, boost)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;

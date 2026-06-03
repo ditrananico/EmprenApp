@@ -1,26 +1,30 @@
 package org.emprenApp.publicacion.application.service;
 
+import lombok.RequiredArgsConstructor;
 import org.emprenApp.publicacion.application.PublicacionAdapter;
 import org.emprenApp.publicacion.application.dto.PublicacionDTO;
 import org.emprenApp.publicacion.application.mapper.PublicacionMapper;
 import org.emprenApp.publicacion.domain.Publicacion;
 import org.emprenApp.publicacion.domain.PublicacionRepository;
 import org.emprenApp.publicacion.infrastructure.request.PublicacionCreateRequest;
+import org.emprenApp.publicacion.infrastructure.request.PublicacionUpdateRequest;
 import org.emprenApp.shared.application.exception.BaseException;
 import org.emprenApp.shared.application.exception.GenericException;
 import org.emprenApp.shared.application.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class PublicacionService implements PublicacionAdapter {
 
     private final static Logger logger = LoggerFactory.getLogger(PublicacionService.class);
 
-    @Autowired private PublicacionRepository repository;
-    @Autowired private PublicacionValidationService validationService;
+    private final PublicacionRepository repository;
+    private final PublicacionValidationService validationService;
 
     @Override
     public PublicacionDTO createPublicacion(PublicacionCreateRequest request) throws BaseException {
@@ -35,6 +39,26 @@ public class PublicacionService implements PublicacionAdapter {
             logger.error("Ocurrió un error inesperado al crear publicación con título: {}", request != null ? request.getTitulo() : null);
             throw new GenericException();
         }
+    }
+
+    @Override
+    public PublicacionDTO getPublicacionById(Long id) throws BaseException {
+        return null;
+    }
+
+    @Override
+    public Page<PublicacionDTO> getPublicaciones(Pageable pageable) throws BaseException {
+        return null;
+    }
+
+    @Override
+    public PublicacionDTO updatePublicacion(Long id, PublicacionUpdateRequest request) throws BaseException {
+        return null;
+    }
+
+    @Override
+    public void deletePublicacion(Long id) throws BaseException {
+
     }
 
 }
