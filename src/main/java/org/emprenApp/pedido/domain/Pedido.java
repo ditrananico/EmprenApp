@@ -4,7 +4,9 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.emprenApp.emprendimiento.domain.Emprendimiento;
 import org.emprenApp.shared.application.enums.EstadoPedidoEnum;
+import org.emprenApp.user.domain.User;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -20,18 +22,18 @@ public class Pedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-   /* @ManyToOne
+    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    private User user; // usuario_id
-
+    private User usuario; // usuario_id
+    /*
+        @ManyToOne
+        @JoinColumn(name = "delivery_person_id")
+        private User deliveryPerson;
+     */
     @ManyToOne
-    @JoinColumn(name = "delivery_person_id")
-    private User deliveryPerson;
-
-    @ManyToOne
-    @JoinColumn(name = "business_id", nullable = false)
+    @JoinColumn(name = "emprendimiento_id", nullable = false)
     private Emprendimiento emprendimiento;
-    */
+
    @Column(name = "FECHA_CREACION", nullable = false)
    private LocalDateTime fechaCreacion;
 
