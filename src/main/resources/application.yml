@@ -4,7 +4,7 @@ spring:
   mvc:
     static-path-pattern: /swagger*
   datasource:
-    url: jdbc:mysql://localhost:3306/emprenApp
+    url: jdbc:mysql://localhost:3306/emprenapp
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: root

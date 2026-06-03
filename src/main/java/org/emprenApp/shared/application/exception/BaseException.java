@@ -16,4 +16,8 @@ public class BaseException extends Exception{
     public String getError(){
         return "code" + code + " - " + message + "";
     }
+
+    public Integer getCode(){
+        return code;
+    }
 }
