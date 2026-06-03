@@ -1,6 +1,5 @@
 package org.emprenApp.detalle_pedido.application.mapper;
 
-import org.emprenApp.detalle_pedido.application.dto.DetallePedidoDTO;
 import org.emprenApp.detalle_pedido.domain.DetallePedido;
 import org.emprenApp.detalle_pedido.infrastructure.response.DetallePedidoResponse;
 import org.emprenApp.detalle_pedido.infrastructure.response.DetalleResponseItem;
@@ -15,17 +14,29 @@ import java.util.List;
 public interface DetallePedidoMapper {
     DetallePedidoMapper INSTANCE = Mappers.getMapper(DetallePedidoMapper.class);
 
-    @Mapping(target = "pedidoId", expression = "java(extraerPedidoId(detallesGuardados))")
-    @Mapping(target = "totalPedido", expression = "java(calcularTotalPedido(detallesGuardados))")
-    @Mapping(target = "items", source = "detallesGuardados")
-    DetallePedidoResponse toResponse(List<DetallePedido> detallesGuardados);
+    default DetallePedidoResponse toResponse(List<DetallePedido> detallesGuardados) {
+        DetallePedidoResponse response = new DetallePedidoResponse();
+        response.setPedidoId(extraerPedidoId(detallesGuardados));
+        response.setTotalPedido(calcularTotalPedido(detallesGuardados));
+        response.setItems(toItemResponseList(detallesGuardados));
+        return response;
+    }
+
 
     @Mapping(target = "detallePedidoId", source = "id")
     @Mapping(target = "productoId", source = "productoId.id")
-    @Mapping(target = "subtotal", expression = "java(detalle.getPrecioUnitario().multiply(new java.math.BigDecimal(detalle.getCantidad())))")
+    @Mapping(target = "subtotal", expression = "java(calcularSubtotal(detalle))")
     DetalleResponseItem toItemResponse(DetallePedido detalle);
 
     List<DetalleResponseItem> toItemResponseList(List<DetallePedido> detalles);
+
+    default BigDecimal calcularSubtotal(DetallePedido detalle) {
+        if (detalle == null || detalle.getPrecioUnitario() == null || detalle.getCantidad() == null) {
+            return BigDecimal.ZERO;
+        }
+        return detalle.getPrecioUnitario().multiply(new BigDecimal(detalle.getCantidad()));
+    }
+
 
     default Long extraerPedidoId(List<DetallePedido> detalles) {
         if (detalles == null || detalles.isEmpty() || detalles.get(0).getPedidoId() == null) {

@@ -9,7 +9,6 @@ import org.emprenApp.detalle_pedido.infrastructure.request.DetallePedidoRequestI
 import org.emprenApp.detalle_pedido.infrastructure.response.DetallePedidoResponse;
 import org.emprenApp.pedido.domain.Pedido;
 import org.emprenApp.pedido.domain.PedidoRepository;
-import org.emprenApp.producto.application.service.ProductoService;
 import org.emprenApp.producto.domain.Producto;
 import org.emprenApp.producto.domain.ProductoRepository;
 import org.emprenApp.shared.application.application.ValidateGeneric;
@@ -20,7 +19,6 @@ import org.emprenApp.shared.application.exception.GenericException;
 import org.emprenApp.shared.application.exception.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,16 +35,10 @@ public class DetallePedidoService implements DetallePedidoAdapter {
 
     private final static Logger logger = LoggerFactory.getLogger(DetallePedidoService.class);
 
-    @Autowired
-    private DetallePedidoRepository detallePedidoRepository;
+    DetallePedidoRepository detallePedidoRepository;
+    PedidoRepository pedidoRepository;
+    ProductoRepository productoRepository;
 
-    @Autowired
-    private ProductoService productoService;
-    private ValidateGeneric validate;
-    private PedidoRepository pedidoRepository;
-    private ProductoRepository productoRepository;
-
-    @Override
     public DetallePedidoResponse getDetallePedidoByPedidoId(Long pedidoId) throws BaseException {
         try {
             logger.info("Obteniendo detalles para pedido ID: " + pedidoId);
@@ -65,13 +57,17 @@ public class DetallePedidoService implements DetallePedidoAdapter {
         }
     }
 
-    @Override
+    public List<DetallePedidoResponse> obtenerDetallesPorPedido(Long pedidoId) throws BaseException {
+        //todo falta hacer
+        return null;
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public DetallePedidoResponse agregarDetallePedido(DetallePedidoAddRequest request) throws BaseException  {
         try {
             logger.info("Iniciando proceso para agregar un DetallePedido");
 
-            validate.validateId(request.getPedidoId());
+            ValidateGeneric.validateId(request.getPedidoId());
             Pedido pedido = pedidoRepository.findById(request.getPedidoId()).orElseThrow(NotFoundException::new);
 
             //  valida que el estado del pedido sea BORRADOR o ACEPTADO para poder guardar el DetallePedido
@@ -91,7 +87,7 @@ public class DetallePedidoService implements DetallePedidoAdapter {
                     throw new BaseException(ErrorCodeEnum.INVALID_PARAMETERS);
                 }
 
-                validate.validateId(item.getProductoId());
+                ValidateGeneric.validateId(item.getProductoId());
                 Producto producto = productoRepository.findById(item.getProductoId())
                         .orElseThrow(NotFoundException::new);
 
@@ -124,7 +120,6 @@ public class DetallePedidoService implements DetallePedidoAdapter {
         }
     }
 
-    @Override
     @Transactional(rollbackFor = Exception.class)
     public void eliminarDetalle(Long id) throws BaseException {
         try {

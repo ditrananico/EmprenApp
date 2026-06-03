@@ -27,8 +27,6 @@ public class UserController extends BaseRestController {
 
     @Autowired
     private UserAdapter userAdapter;
-    private ValidateGeneric validate;
-    @Autowired private UserAdapter userAdapter;
 
     @GetMapping("/all")
     public ResponseEntity<Page<UserDTO>> getAllUsers(Pageable pageable) throws BaseException {
@@ -37,7 +35,7 @@ public class UserController extends BaseRestController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getUserByID(@PathVariable Long id) throws BaseException {
-        validate.validateId(id);
+        ValidateGeneric.validateId(id);
         return responseOk(UserInfrastructureMapper.INSTANCE.toResponse(userAdapter.getUserByID(id)));
     }
 
@@ -55,8 +53,8 @@ public class UserController extends BaseRestController {
 
     @DeleteMapping("/delete/{email}")
     public ResponseEntity<String> deleteUser(@PathVariable String email) throws BaseException {
-       String deleteResponse=  userAdapter.deleteUser(email);
-        return ResponseEntity.ok(deleteResponse);
+        userAdapter.deleteUser(email);
+        return responseOk(("usuario eliminado exitosamente"));
     }
 
     @PutMapping("/edit")

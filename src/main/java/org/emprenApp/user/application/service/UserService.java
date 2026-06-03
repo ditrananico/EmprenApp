@@ -1,7 +1,6 @@
 package org.emprenApp.user.application.service;
 
 import org.emprenApp.shared.application.application.ValidateGeneric;
-import org.emprenApp.shared.application.enums.ErrorCodeEnum;
 import org.emprenApp.shared.application.enums.EstadoUserEnum;
 import org.emprenApp.shared.application.exception.BaseException;
 import org.emprenApp.shared.application.exception.GenericException;
@@ -25,13 +24,12 @@ import java.util.Optional;
 public class UserService implements UserAdapter {
     private final static Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    private UserRepository userRepository;
-    private ValidateGeneric validate;
+    UserRepository userRepository;
 
     public UserDTO createUser(UserCreateRequest createRequest) throws BaseException{
         try {
-            validate.validateNotNull(createRequest);
-            validate.validateEmail(createRequest.getEmail());
+            ValidateGeneric.validateNotNull(createRequest);
+            ValidateGeneric.validateEmail(createRequest.getEmail());
 
             User usuarioCreado = userRepository.save(UserMapper.INSTANCE.toEntity(createRequest));
             logger.info("Usuario creado: {}", usuarioCreado.getEmail());
@@ -45,7 +43,7 @@ public class UserService implements UserAdapter {
     }
 
     public UserDTO getUser(String email) throws BaseException {
-        validate.validateEmail(email);
+        ValidateGeneric.validateEmail(email);
         return UserMapper.INSTANCE.toDTO(
                 userRepository.findByEmailAndEstado(email, EstadoUserEnum.ACTIVO)
                         .orElseThrow(NotFoundException::new));
@@ -73,7 +71,7 @@ public class UserService implements UserAdapter {
     @Override
     public void deleteUser(String email) throws BaseException {
         try {
-            validate.validateEmail(email);
+            ValidateGeneric.validateEmail(email);
             Optional<User> userOptional = userRepository.findByEmailAndEstado(email, EstadoUserEnum.ACTIVO);
             if (userOptional.isEmpty()) {
                 throw new NotFoundException();
@@ -95,8 +93,8 @@ public class UserService implements UserAdapter {
     public UserDTO updateUser(UserUpdateRequest userUpdateRequest) throws BaseException {
 
         try {
-            validate.validateNotNull(userUpdateRequest);
-            validate.validateEmail(userUpdateRequest.getEmail());
+            ValidateGeneric.validateNotNull(userUpdateRequest);
+            ValidateGeneric.validateEmail(userUpdateRequest.getEmail());
 
             Optional<User> userOptional = userRepository.findByEmailAndEstado(userUpdateRequest.getEmail(), EstadoUserEnum.ACTIVO);
             if (userOptional.isEmpty()) {
@@ -119,7 +117,7 @@ public class UserService implements UserAdapter {
     @Override
     public void updateStatusUser(Long id) throws BaseException {
         try {
-            validate.validateId(id);
+            ValidateGeneric.validateId(id);
             Optional<User> userOptional = userRepository.findByIdAndEstado(id, EstadoUserEnum.ACTIVO);
             if (userOptional.isEmpty()) {
                 throw new NotFoundException();
@@ -137,5 +135,4 @@ public class UserService implements UserAdapter {
             throw new GenericException();
         }
     }
-
 }

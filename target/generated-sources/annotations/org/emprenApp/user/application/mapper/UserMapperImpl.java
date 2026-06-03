@@ -8,7 +8,7 @@ import org.emprenApp.user.infrastructure.request.UserUpdateRequest;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-05-13T18:32:13-0300",
+    date = "2026-06-03T19:03:50-0300",
     comments = "version: 1.5.5.Final, compiler: javac, environment: Java 21.0.7 (Oracle Corporation)"
 )
 public class UserMapperImpl implements UserMapper {
