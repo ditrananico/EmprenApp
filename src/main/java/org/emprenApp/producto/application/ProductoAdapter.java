@@ -14,7 +14,6 @@ public interface ProductoAdapter {
     ProductoDTO getProductoByID(Long id) throws BaseException;
     ProductoDTO updateProducto(ProductUpdateRequest request) throws BaseException;
     String deleteProducto(Long id) throws BaseException;
-    String deleteProductoLogical(Long id) throws BaseException;
     // Agregamos paginación por categoría como se solicitó
     Page<ProductoDTO> getProductosByCategoria(Long categoryId, Pageable pageable) throws BaseException;
 }

@@ -47,28 +47,26 @@ public class ProductoService implements ProductoAdapter {
 
     @Override
     public ProductoDTO updateProducto(ProductUpdateRequest request) throws BaseException {
-        if (request == null || request.getId() == null) throw new ValidationException();
-        Producto producto = productoRepository.findById(request.getId()).orElseThrow(NotFoundException::new);
-        producto.setTitulo(request.getTitulo());
-        producto.setDescripcion(request.getDescripcion());
-        producto.setPrecio(request.getPrecio());
-        producto.setStock(request.getStock());
-        producto.setStockMinimo(request.getStockMinimo());
-        productoRepository.save(producto);
-        logger.info("Producto actualizado: {}", request.getId());
-        return ProductoMapper.INSTANCE.toDTO(producto);
+        try {
+            if (request == null || request.getId() == null) throw new ValidationException();
+
+            Producto producto = productoRepository.findById(request.getId()).orElseThrow(NotFoundException::new);
+            producto.setTitulo(request.getTitulo());
+            producto.setDescripcion(request.getDescripcion());
+            producto.setPrecio(request.getPrecio());
+            producto.setStock(request.getStock());
+            producto.setStockMinimo(request.getStockMinimo());
+            productoRepository.save(producto);
+            logger.info("Producto actualizado: {}", request.getId());
+            return ProductoMapper.INSTANCE.toDTO(producto);
+        } catch (Exception e) {
+            logger.error("Error al actualizar producto", e);
+            throw new GenericException(e);
+        }
     }
 
     @Override
-    public String deleteProducto(Long id) throws BaseException {
-        if (id == null) throw new ValidationException();
-        if (!productoRepository.existsById(id)) throw new NotFoundException();
-        productoRepository.deleteById(id);
-        return "Producto eliminado exitosamente";
-    }
-
-    @Override
-    public String deleteProductoLogical(Long id) throws GenericException, NotFoundException {
+    public String deleteProducto(Long id) throws GenericException, NotFoundException {
         Producto producto = productoRepository.findById(id).orElseThrow(NotFoundException::new);
         producto.setActive(false);
         productoRepository.save(producto);

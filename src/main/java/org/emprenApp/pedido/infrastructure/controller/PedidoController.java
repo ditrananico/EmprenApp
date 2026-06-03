@@ -3,6 +3,8 @@ package org.emprenApp.pedido.infrastructure.controller;
 import org.emprenApp.pedido.application.PedidoAdapter;
 import org.emprenApp.pedido.application.dto.PedidoDTO;
 import org.emprenApp.shared.application.application.BaseRestController;
+import org.emprenApp.shared.application.application.ValidateGeneric;
+import org.emprenApp.shared.application.enums.ErrorCodeEnum;
 import org.emprenApp.shared.application.enums.EstadoPedidoEnum;
 import org.emprenApp.shared.application.exception.BaseException;
 import org.slf4j.Logger;
@@ -46,22 +48,13 @@ public class PedidoController extends BaseRestController {
     public ResponseEntity<String> cancelPedido(@PathVariable Long id) throws BaseException {
 
         logger.info("REST Request - DELETE /cancel/{} - Solicitud de cancelación", id);
-
-        if (id == null || id <= 0) {
-            logger.warn("ID de pedido inválido para cancelación: {}", id);
-            return new ResponseEntity<>("El ID del pedido debe ser un número positivo", HttpStatus.BAD_REQUEST);
-        }
-
         boolean fueCancelado = pedidoAdapter.cancelPedido(id);
         if (fueCancelado) {
             logger.info("REST Response - Pedido {} cancelado con éxito", id);
             return ResponseEntity.ok("Pedido cancelado exitosamente");
         } else {
             logger.info("REST Response - El pedido {} no requirió cambios (ya estaba cancelado)", id);
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("El pedido ya se encontraba en estado CANCELADO o no se pudo procesar.");
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(ErrorCodeEnum.PEDIDO_ERROR_CANCELAR.getDescription());
         }
     }
-
-    //Create Estado
-    //revisar los ultimos dos endpoint - desarrollar el create
 }

@@ -6,6 +6,7 @@ import org.emprenApp.producto.infrastructure.mapper.ProductoInfrastructureMapper
 import org.emprenApp.producto.infrastructure.request.ProductCreateRequest;
 import org.emprenApp.producto.infrastructure.request.ProductUpdateRequest;
 import org.emprenApp.producto.infrastructure.response.ProductResponse;
+import org.emprenApp.shared.application.application.BaseRestController;
 import org.emprenApp.shared.application.exception.BaseException;
 import org.emprenApp.shared.application.exception.GenericException;
 import org.slf4j.Logger;
@@ -18,14 +19,14 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("v1/product")
-public class ProductoController {
+public class ProductoController extends BaseRestController {
 
     private final static Logger logger = LoggerFactory.getLogger(ProductoController.class);
 
     @Autowired
     private ProductoAdapter productoAdapter;
 
-    @PostMapping("/create")
+    @PostMapping("/")
     public ResponseEntity createProducto(@RequestBody @Validated ProductCreateRequest request) throws BaseException {
         try {
             logger.info("Creando producto: " + request.getTitulo());
@@ -43,7 +44,7 @@ public class ProductoController {
         return ProductoInfrastructureMapper.INSTANCE.toResponse(dto);
     }
 
-    @PutMapping("/edit")
+    @PutMapping("/")
     public ResponseEntity<ProductResponse> updateProducto(@RequestBody @Validated ProductUpdateRequest request) throws BaseException {
         try {
             logger.info("Actualizando producto: " + request.getId());
@@ -55,21 +56,8 @@ public class ProductoController {
         }
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteProducto(@PathVariable Long id) throws BaseException {
         return ResponseEntity.ok(productoAdapter.deleteProducto(id));
-    }
-
-    @DeleteMapping("/delete/logical/{id}")
-    public ResponseEntity<String> deleteProductoLogical(@PathVariable Long id) throws BaseException {
-        return ResponseEntity.ok(productoAdapter.deleteProductoLogical(id));
-    }
-
-    private ResponseEntity<ProductResponse> responseOk(ProductResponse response) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
-    private ResponseEntity<String> responseError(GenericException e) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getError());
     }
 }

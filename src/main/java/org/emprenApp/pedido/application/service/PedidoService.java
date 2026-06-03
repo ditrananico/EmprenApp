@@ -29,7 +29,6 @@ public class PedidoService implements PedidoAdapter {
     private PedidoRepository pedidoRepository;
     private UserAdapter  userService;
     private EmprendimientoService emprendimientoService;
-    private ValidateGeneric validate;
 
     @Override
     public Page<PedidoDTO> getAllPedidos(Pageable pageable) throws GenericException {
@@ -42,14 +41,14 @@ public class PedidoService implements PedidoAdapter {
     }
     @Override
     public PedidoDTO getPedidoByID(Long id) throws BaseException {
-        validate.validateId(id);
+        ValidateGeneric.validateId(id);
         return PedidoMapper.INSTANCE.toDTO(pedidoRepository.findById(id)
                 .orElseThrow(NotFoundException::new));
     }
 
     @Override
     public Page<PedidoDTO> getAllPedidoByUserIDAndStatus(Long userId, EstadoPedidoEnum status, Pageable pageable) throws BaseException {
-        validate.validateId(userId);
+        ValidateGeneric.validateId(userId);
         userService.getUserByID(userId);
         Page<Pedido> pedidosPage = pedidoRepository.findByUserIdAndOptionalStatus(userId, status, pageable);
          return PedidoMapper.INSTANCE.toPageDTO(pedidosPage);
@@ -67,8 +66,8 @@ public class PedidoService implements PedidoAdapter {
 
     @Override
     public PedidoDTO updateStatus(Long id, EstadoPedidoEnum nuevoEstado) throws BaseException {
-        validate.validateId(id);
-        validate.validateNotNull(nuevoEstado);
+        ValidateGeneric.validateId(id);
+        ValidateGeneric.validateNotNull(nuevoEstado);
         Pedido pedido = pedidoRepository.findById(id).orElseThrow(NotFoundException::new);
         pedido.setStatus(nuevoEstado);
         return PedidoMapper.INSTANCE.toDTO(pedidoRepository.save(pedido));
@@ -78,6 +77,8 @@ public class PedidoService implements PedidoAdapter {
     public boolean cancelPedido(Long id) throws GenericException, NotFoundException {
         try {
             logger.info("Solicitud para cancelar pedido ID: {}", id);
+            ValidateGeneric.validateId(id);
+
             Pedido pedido = pedidoRepository.findById(id).orElseThrow(NotFoundException::new);
 
             //Ver casos donde no se puede cancelar el pedido -- Ver exceptions
@@ -97,6 +98,8 @@ public class PedidoService implements PedidoAdapter {
             logger.info("Pedido ID: {} cancelado exitosamente en la base de datos.", id);
             return true;
 
+        }catch ( NotFoundException e ) {
+            throw e;
         }catch ( Exception e ) {
             logger.error("Error inesperado al cancelar el pedido ID: {}. Detalles del error: {}", id, e.getMessage(), e);
             throw new GenericException(GENERIC_ERROR);
