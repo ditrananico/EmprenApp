@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 public interface EmprendimientoInfrastructureMapper {
 
     EmprendimientoInfrastructureMapper INSTANCE = Mappers.getMapper(EmprendimientoInfrastructureMapper.class);
+
     EmprendimientoResponse toResponse(EmprendimientoDTO emprendimientoDTO);
 
     default Page<EmprendimientoResponse> toResponse(Page<EmprendimientoDTO> emprendimientos) {

@@ -28,7 +28,7 @@ public class Publicacion {
     private Timestamp fechaCreacion;
 
     @Column(name = "BOOST", nullable = false)
-    private int boost;
+    private Integer boost;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "ESTADO", nullable = false)
