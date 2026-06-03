@@ -1,5 +1,6 @@
 package org.emprenApp.pedido.application.service;
 
+import lombok.RequiredArgsConstructor;
 import org.emprenApp.emprendimiento.application.service.EmprendimientoService;
 import org.emprenApp.pedido.application.PedidoAdapter;
 import org.emprenApp.pedido.application.dto.PedidoDTO;
@@ -23,12 +24,13 @@ import static org.emprenApp.shared.application.enums.ErrorCodeEnum.GENERIC_ERROR
 
 
 @Service
+@RequiredArgsConstructor
 public class PedidoService implements PedidoAdapter {
     private final static Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    private PedidoRepository pedidoRepository;
-    private UserAdapter  userService;
-    private EmprendimientoService emprendimientoService;
+    private final PedidoRepository pedidoRepository;
+    private final UserAdapter  userService;
+    private final EmprendimientoService emprendimientoService;
 
     @Override
     public Page<PedidoDTO> getAllPedidos(Pageable pageable) throws GenericException {

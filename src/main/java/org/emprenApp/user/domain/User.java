@@ -7,7 +7,7 @@ import org.emprenApp.shared.application.enums.EstadoUserEnum;
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "users")
+@Table(name = "usuarios")
 @Data
 public class User {
 

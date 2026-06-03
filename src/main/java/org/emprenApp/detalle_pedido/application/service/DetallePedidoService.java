@@ -1,5 +1,6 @@
 package org.emprenApp.detalle_pedido.application.service;
 
+import lombok.RequiredArgsConstructor;
 import org.emprenApp.detalle_pedido.application.DetallePedidoAdapter;
 import org.emprenApp.detalle_pedido.application.mapper.DetallePedidoMapper;
 import org.emprenApp.detalle_pedido.domain.DetallePedido;
@@ -31,13 +32,14 @@ import static org.emprenApp.shared.application.enums.ErrorCodeEnum.GENERIC_ERROR
 
 
 @Service
+@RequiredArgsConstructor
 public class DetallePedidoService implements DetallePedidoAdapter {
 
     private final static Logger logger = LoggerFactory.getLogger(DetallePedidoService.class);
 
-    DetallePedidoRepository detallePedidoRepository;
-    PedidoRepository pedidoRepository;
-    ProductoRepository productoRepository;
+    private final DetallePedidoRepository detallePedidoRepository;
+    private final PedidoRepository pedidoRepository;
+    private final ProductoRepository productoRepository;
 
     public DetallePedidoResponse getDetallePedidoByPedidoId(Long pedidoId) throws BaseException {
         try {

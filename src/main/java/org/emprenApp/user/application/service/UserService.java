@@ -1,5 +1,6 @@
 package org.emprenApp.user.application.service;
 
+import lombok.RequiredArgsConstructor;
 import org.emprenApp.shared.application.application.ValidateGeneric;
 import org.emprenApp.shared.application.enums.EstadoUserEnum;
 import org.emprenApp.shared.application.exception.BaseException;
@@ -21,10 +22,11 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class UserService implements UserAdapter {
     private final static Logger logger = LoggerFactory.getLogger(UserService.class);
 
-    UserRepository userRepository;
+    private final UserRepository userRepository;
 
     public UserDTO createUser(UserCreateRequest createRequest) throws BaseException{
         try {
