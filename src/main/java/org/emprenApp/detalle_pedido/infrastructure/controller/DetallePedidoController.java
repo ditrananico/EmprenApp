@@ -3,6 +3,7 @@ package org.emprenApp.detalle_pedido.infrastructure.controller;
 import org.emprenApp.detalle_pedido.application.DetallePedidoAdapter;
 import org.emprenApp.detalle_pedido.infrastructure.request.DetallePedidoAddRequest;
 import org.emprenApp.detalle_pedido.infrastructure.response.DetallePedidoResponse;
+import org.emprenApp.shared.application.application.BaseRestController;
 import org.emprenApp.shared.application.application.ValidateGeneric;
 import org.emprenApp.shared.application.enums.ErrorCodeEnum;
 import org.emprenApp.shared.application.exception.BaseException;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("v1/detalle-pedido")
-public class DetallePedidoController {
+public class DetallePedidoController extends BaseRestController {
 
     private final static Logger logger = LoggerFactory.getLogger(DetallePedidoController.class);
 
@@ -29,7 +30,7 @@ public class DetallePedidoController {
     public ResponseEntity<DetallePedidoResponse> obtenerDetallePedidoId(@PathVariable Long pedidoId) throws BaseException {
         logger.info("REST Request - GET /{} para obtener detallePedido", pedidoId);
         validate.validateId(pedidoId);
-        return ResponseEntity.ok(detallePedidoAdapter.getDetallePedidoByPedidoId(pedidoId));
+        return responseOk(detallePedidoAdapter.getDetallePedidoByPedidoId(pedidoId));
     }
 
     @PostMapping("/")
@@ -39,16 +40,14 @@ public class DetallePedidoController {
         if (request.getItemsDetallePedido() == null || request.getItemsDetallePedido().isEmpty()) {
             throw new BaseException(ErrorCodeEnum.INVALID_PARAMETERS);
         }
-        DetallePedidoResponse response = detallePedidoAdapter.agregarDetallePedido(request);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+        return responseCreated(detallePedidoAdapter.agregarDetallePedido(request));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> eliminarDetalle(@PathVariable Long id) throws BaseException{
-        logger.info("REST Request - DELETE /remove/{} - Intento de eliminación", id);
+    public ResponseEntity<String> eliminarDetallePedido(@PathVariable Long id) throws BaseException{
+        logger.info("REST Request - DELETE /{} - Eliminando un DetallePedido", id);
         validate.validateId(id);
         detallePedidoAdapter.eliminarDetalle(id);
-
-        return ResponseEntity.ok("Detalle eliminado exitosamente");
+        return responseMessage("DetallePedido eliminado exitosamente");
     }
 }

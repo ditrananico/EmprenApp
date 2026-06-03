@@ -5,8 +5,10 @@ import org.emprenApp.pedido.application.dto.PedidoDTO;
 import org.emprenApp.pedido.application.mapper.PedidoMapper;
 import org.emprenApp.pedido.domain.Pedido;
 import org.emprenApp.pedido.domain.PedidoRepository;
+import org.emprenApp.shared.application.application.ValidateGeneric;
 import org.emprenApp.shared.application.enums.ErrorCodeEnum;
 import org.emprenApp.shared.application.enums.EstadoPedidoEnum;
+import org.emprenApp.shared.application.exception.BaseException;
 import org.emprenApp.shared.application.exception.GenericException;
 import org.emprenApp.shared.application.exception.NotFoundException;
 import org.emprenApp.user.application.UserAdapter;
@@ -26,6 +28,7 @@ public class PedidoService implements PedidoAdapter {
 
     private PedidoRepository pedidoRepository;
     private UserAdapter  userService;
+    private ValidateGeneric validate;
 
     @Override
     public Page<PedidoDTO> getAllPedidos(Pageable pageable) throws GenericException {
@@ -33,20 +36,17 @@ public class PedidoService implements PedidoAdapter {
     }
 
     @Override
-    public PedidoDTO getPedidoByID(Long id) throws GenericException, NotFoundException {
-        if (id == null || id < 0) throw new GenericException(ErrorCodeEnum.INVALID_PARAMETERS);
-
+    public PedidoDTO getPedidoByID(Long id) throws BaseException {
+        validate.validateId(id);
         return PedidoMapper.INSTANCE.toDTO(pedidoRepository.findById(id)
                 .orElseThrow(NotFoundException::new));
     }
 
     @Override
-    public Page<PedidoDTO> getAllPedidoByUserIDAndStatus(Long userId, EstadoPedidoEnum status, Pageable pageable) throws GenericException, NotFoundException {
-
-        //Para validar el usuario esta bien llamar al service o directamente al repository del User?
+    public Page<PedidoDTO> getAllPedidoByUserIDAndStatus(Long userId, EstadoPedidoEnum status, Pageable pageable) throws BaseException {
+        validate.validateId(userId);
         userService.getUserByID(userId);
         Page<Pedido> pedidosPage = pedidoRepository.findByUserIdAndOptionalStatus(userId, status, pageable);
-
          return PedidoMapper.INSTANCE.toPageDTO(pedidosPage);
     }
 
@@ -61,7 +61,9 @@ public class PedidoService implements PedidoAdapter {
     }
 
     @Override
-    public PedidoDTO updateStatus(Long id, EstadoPedidoEnum nuevoEstado) throws GenericException, NotFoundException {
+    public PedidoDTO updateStatus(Long id, EstadoPedidoEnum nuevoEstado) throws BaseException {
+        validate.validateId(id);
+        validate.validateNotNull(nuevoEstado);
         Pedido pedido = pedidoRepository.findById(id).orElseThrow(NotFoundException::new);
         pedido.setStatus(nuevoEstado);
         return PedidoMapper.INSTANCE.toDTO(pedidoRepository.save(pedido));

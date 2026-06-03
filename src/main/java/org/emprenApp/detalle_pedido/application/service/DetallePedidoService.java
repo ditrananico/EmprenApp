@@ -52,9 +52,7 @@ public class DetallePedidoService implements DetallePedidoAdapter {
             logger.info("Obteniendo detalles para pedido ID: " + pedidoId);
 
             Pedido pedido = pedidoRepository.findById(pedidoId).orElseThrow(NotFoundException::new);
-
             List<DetallePedido> detalles =  detallePedidoRepository.findByPedidoIdAndActivoTrue(pedido);
-
             if (detalles == null || detalles.isEmpty()) {
                 throw new NotFoundException();
             }

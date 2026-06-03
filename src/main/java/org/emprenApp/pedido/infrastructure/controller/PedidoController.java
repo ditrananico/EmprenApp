@@ -2,6 +2,7 @@ package org.emprenApp.pedido.infrastructure.controller;
 
 import org.emprenApp.pedido.application.PedidoAdapter;
 import org.emprenApp.pedido.application.dto.PedidoDTO;
+import org.emprenApp.shared.application.application.BaseRestController;
 import org.emprenApp.shared.application.enums.EstadoPedidoEnum;
 import org.emprenApp.shared.application.exception.BaseException;
 import org.slf4j.Logger;
@@ -15,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("v1/pedido")
-public class PedidoController {
+public class PedidoController extends BaseRestController {
     private final static Logger logger = LoggerFactory.getLogger(PedidoController.class);
 
     @Autowired
@@ -23,22 +24,22 @@ public class PedidoController {
 
     @GetMapping("/{id}")
     public ResponseEntity<PedidoDTO> getPedidoByID(@PathVariable Long id) throws BaseException {
-        return ResponseEntity.ok(pedidoAdapter.getPedidoByID(id));
+        return responseOk(pedidoAdapter.getPedidoByID(id));
     }
 
     @GetMapping("/usuario/{id}")
     public ResponseEntity<Page<PedidoDTO>> getAllPedidoByIDUserAndStatus(@PathVariable Long userId, @RequestParam(required = false) EstadoPedidoEnum status, Pageable pageable) throws BaseException {
-        return ResponseEntity.ok(pedidoAdapter.getAllPedidoByUserIDAndStatus(userId, status, pageable));
+        return responseOk(pedidoAdapter.getAllPedidoByUserIDAndStatus(userId, status, pageable));
     }
 
     @GetMapping("/emprendimiento/{emprendimientoId}")
     public ResponseEntity<Page<PedidoDTO>> getPedidosByEmprendimiento(@PathVariable Long emprendimientoId, @RequestParam(required = false) EstadoPedidoEnum status, Pageable pageable) throws BaseException {
-        return ResponseEntity.ok(pedidoAdapter.getAllPedidoByEmprendimientoIDAndStatus(emprendimientoId, status, pageable));
+        return responseOk(pedidoAdapter.getAllPedidoByEmprendimientoIDAndStatus(emprendimientoId, status, pageable));
     }
-    @PatchMapping("/{id}/status")
+    @PatchMapping("/{id}")
     public ResponseEntity<PedidoDTO> updateStatus(@PathVariable Long id, @RequestParam EstadoPedidoEnum nuevoEstado) throws BaseException {
         logger.info("Actualizando estado del pedido: " + id + " a " + nuevoEstado);
-        return ResponseEntity.ok(pedidoAdapter.updateStatus(id, nuevoEstado));
+        return responseOk(pedidoAdapter.updateStatus(id, nuevoEstado));
     }
 
     @DeleteMapping("/cancel/{id}")
