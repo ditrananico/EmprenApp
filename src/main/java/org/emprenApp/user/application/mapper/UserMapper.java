@@ -10,7 +10,6 @@ import org.mapstruct.factory.Mappers;
 import org.springframework.data.domain.Page;
 
 import java.sql.Timestamp;
-import java.time.Instant;
 
 @Mapper
 public interface UserMapper {
@@ -36,8 +35,7 @@ public interface UserMapper {
             user.setEstado(EstadoUserEnum.ACTIVO);
         }
         if (user.getFechaCreacion() == null) {
-            Instant ahora = Instant.now();
-            user.setFechaCreacion(Timestamp.from(ahora));
+            user.setFechaCreacion(new Timestamp(System.currentTimeMillis()));
         }
     }
 

@@ -1,5 +1,7 @@
 package org.emprenApp.publicacion.application.mapper;
 
+import org.emprenApp.emprendimiento.application.dto.EmprendimientoDTO;
+import org.emprenApp.emprendimiento.domain.Emprendimiento;
 import org.emprenApp.publicacion.application.dto.PublicacionDTO;
 import org.emprenApp.publicacion.domain.Publicacion;
 import org.emprenApp.publicacion.infrastructure.request.PublicacionCreateRequest;
@@ -22,8 +24,9 @@ public interface PublicacionMapper {
 
     PublicacionDTO toDto(Publicacion publicacion);
 
-    Page<PublicacionDTO> toPageDTO(Page<Publicacion> page, Pageable pageable);
-
+    default Page<PublicacionDTO> toPageDTO(Page<Publicacion> page) {
+        return page.map(this::toDto);
+    }
     Publicacion toEntityFromRequest(PublicacionCreateRequest request);
 
     @AfterMapping
