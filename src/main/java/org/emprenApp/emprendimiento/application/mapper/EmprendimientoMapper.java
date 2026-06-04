@@ -2,8 +2,8 @@ package org.emprenApp.emprendimiento.application.mapper;
 
 import org.emprenApp.emprendimiento.application.dto.EmprendimientoDTO;
 import org.emprenApp.emprendimiento.domain.Emprendimiento;
-import org.emprenApp.emprendimiento.domain.EmprendimientoRepository;
 import org.emprenApp.emprendimiento.infrastructure.request.EmprendimientoCreateRequest;
+import org.emprenApp.emprendimiento.infrastructure.response.EmprendimientoResponse;
 import org.emprenApp.shared.application.enums.EstadoEmprendimientoEnum;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
@@ -18,7 +18,11 @@ public interface EmprendimientoMapper {
 
     EmprendimientoDTO toDTO(Emprendimiento emprendimiento);
 
-    Page<EmprendimientoDTO> toPageDTO(Page<Emprendimiento> emprendimientos);
+    EmprendimientoDTO toResponse(Emprendimiento emprendimiento);
+
+    default Page<EmprendimientoDTO> toPageDTO(Page<Emprendimiento> emprendimientos) {
+        return emprendimientos.map(this::toDTO);
+    }
 
     @AfterMapping
     default void setDefaultValues(@MappingTarget Emprendimiento emprendimiento) {
