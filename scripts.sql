@@ -1,3 +1,55 @@
+
+CREATE DATABASE emprenapp ;
+USE emprenapp ;
+
+CREATE TABLE emprenapp.usuarios (
+                                    id BIGINT NOT NULL AUTO_INCREMENT,
+                                    email VARCHAR(100) NOT NULL,
+                                    password VARCHAR(60) NOT NULL,
+                                    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                    estado VARCHAR(20) NOT NULL,
+                                    nombre VARCHAR(100) NOT NULL,
+                                    apellido VARCHAR(100) NOT NULL,
+                                    telefono VARCHAR(15),
+                                    PRIMARY KEY (id),
+                                    UNIQUE KEY uk_users_email (email),
+                                    INDEX idx_users_estado (estado),
+                                    INDEX idx_users_nombre_apellido (nombre, apellido)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE emprenapp.emprendimientos (
+                                           id BIGINT NOT NULL AUTO_INCREMENT,
+                                           user_id BIGINT NOT NULL,
+                                           name VARCHAR(40) NOT NULL,
+                                           description VARCHAR(250),
+                                           estado VARCHAR(20) NOT NULL,
+                                           PRIMARY KEY (id),
+                                           CONSTRAINT fk_emprendimientos_user
+                                               FOREIGN KEY (user_id)
+                                                   REFERENCES emprenapp.usuarios(id),
+                                           INDEX idx_emprendimientos_user (user_id),
+                                           INDEX idx_emprendimientos_estado (estado),
+                                           INDEX idx_emprendimientos_name (name)
+
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE emprenapp.categorias (
+                                      id BIGINT NOT NULL AUTO_INCREMENT,
+                                      nombre VARCHAR(100) NOT NULL,
+                                      descripcion VARCHAR(255),
+                                      tipo VARCHAR(50),
+                                      active BOOLEAN NOT NULL DEFAULT TRUE,
+                                      PRIMARY KEY (id),
+                                      INDEX idx_categorias_active (active),
+                                      INDEX idx_categorias_nombre (nombre)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE emprenapp.productos (
                                      id BIGINT NOT NULL AUTO_INCREMENT,
                                      titulo VARCHAR(100) NOT NULL,
@@ -6,13 +58,22 @@ CREATE TABLE emprenapp.productos (
                                      stock INT NOT NULL DEFAULT 0,
                                      stock_minimo INT NOT NULL DEFAULT 0,
                                      active BOOLEAN NOT NULL DEFAULT TRUE,
+                                     emprendimiento_id BIGINT NOT NULL,
+                                     categoria_id BIGINT NOT NULL,
                                      PRIMARY KEY (id),
+                                     CONSTRAINT fk_productos_emprendimiento FOREIGN KEY (emprendimiento_id)
+                                         REFERENCES emprenapp.emprendimientos (id) ON DELETE RESTRICT ON UPDATE CASCADE,
+                                     CONSTRAINT fk_productos_categoria FOREIGN KEY (categoria_id)
+                                         REFERENCES emprenapp.categorias (id) ON DELETE RESTRICT ON UPDATE CASCADE,
                                      INDEX idx_productos_active (active),
                                      INDEX idx_productos_titulo (titulo),
-                                     INDEX idx_productos_stock (stock)
+                                     INDEX idx_productos_stock (stock),
+                                     INDEX idx_productos_emprendimiento (emprendimiento_id),
+                                     INDEX idx_productos_categoria (categoria_id)
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4
   COLLATE=utf8mb4_unicode_ci;
+
 
 CREATE TABLE emprenapp.pedidos (
                                    id BIGINT NOT NULL AUTO_INCREMENT,
@@ -28,7 +89,7 @@ CREATE TABLE emprenapp.pedidos (
                                    PRIMARY KEY (id),
                                    CONSTRAINT fk_pedidos_user
                                        FOREIGN KEY (user_id)
-                                           REFERENCES emprenapp.users(id),
+                                           REFERENCES emprenapp.usuarios(id),
                                    CONSTRAINT fk_pedidos_emprendimiento
                                        FOREIGN KEY (emprendimiento_id)
                                            REFERENCES emprenapp.emprendimientos(id),
@@ -41,23 +102,6 @@ CREATE TABLE emprenapp.pedidos (
   DEFAULT CHARSET=utf8mb4
   COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE emprenapp.emprendimientos (
-                                           id BIGINT NOT NULL AUTO_INCREMENT,
-                                           user_id BIGINT NOT NULL,
-                                           name VARCHAR(40) NOT NULL,
-                                           description VARCHAR(250),
-                                           estado VARCHAR(20) NOT NULL,
-                                           PRIMARY KEY (id),
-                                           CONSTRAINT fk_emprendimientos_user
-                                               FOREIGN KEY (user_id)
-                                                   REFERENCES emprenapp.users(id),
-                                           INDEX idx_emprendimientos_user (user_id),
-                                           INDEX idx_emprendimientos_estado (estado),
-                                           INDEX idx_emprendimientos_name (name)
-
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE emprenapp.detalle_pedido (
                                           id BIGINT NOT NULL AUTO_INCREMENT,
@@ -80,19 +124,3 @@ CREATE TABLE emprenapp.detalle_pedido (
   DEFAULT CHARSET=utf8mb4
   COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE emprenapp.usuarios (
-                                    id BIGINT NOT NULL AUTO_INCREMENT,
-                                    email VARCHAR(100) NOT NULL,
-                                    password VARCHAR(60) NOT NULL,
-                                    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                    estado VARCHAR(20) NOT NULL,
-                                    nombre VARCHAR(100) NOT NULL,
-                                    apellido VARCHAR(100) NOT NULL,
-                                    telefono VARCHAR(15),
-                                    PRIMARY KEY (id),
-                                    UNIQUE KEY uk_users_email (email),
-                                    INDEX idx_users_estado (estado),
-                                    INDEX idx_users_nombre_apellido (nombre, apellido)
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci;

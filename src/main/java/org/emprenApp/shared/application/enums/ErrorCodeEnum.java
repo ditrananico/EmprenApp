@@ -12,6 +12,8 @@ public enum ErrorCodeEnum {
     INPUT_LENGTH(5, "El campo supera el máximo permitido"),
     PEDIDO_ERROR_CANCELAR(6, "El pedido no se pudo cancelar"),
     ID_ERROR(7, "El ID debe ser un número positivo"),
+    INVALID_PRICE(8,"El precio debe ser un número positivo"),
+    INVALID_STOCK(9,"El stock debe ser un número positivo"),
     GENERIC_ERROR(99, "Error generico en el sistema");
 
     private final Integer code;

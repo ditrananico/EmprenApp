@@ -13,7 +13,8 @@ public interface ProductoAdapter {
     ProductoDTO createProducto(ProductCreateRequest request) throws BaseException;
     ProductoDTO getProductoByID(Long id) throws BaseException;
     ProductoDTO updateProducto(ProductUpdateRequest request) throws BaseException;
-    String deleteProducto(Long id) throws BaseException;
-    // Agregamos paginación por categoría como se solicitó
+    boolean deleteProducto(Long id) throws BaseException;
     Page<ProductoDTO> getProductosByCategoria(Long categoryId, Pageable pageable) throws BaseException;
+    Page<ProductoDTO> getProductosByEmprendimiento(Long emprendimientoId, Pageable pageable) throws BaseException; // 🌟 Clave para el catálogo del local
+    Page<ProductoDTO> searchProductos(String query, Pageable pageable) throws BaseException; // 🌟 Clave para el buscador interno
 }

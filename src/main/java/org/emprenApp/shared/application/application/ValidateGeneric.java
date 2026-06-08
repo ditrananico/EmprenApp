@@ -33,4 +33,10 @@ public class ValidateGeneric {
             throw new BaseException(ErrorCodeEnum.PATTERN_EMAIL);
         }
     }
+
+    public static void validateNotBlank(String text) throws BaseException {
+        if (text == null || text.isBlank()) {
+            throw new BaseException(ErrorCodeEnum.INVALID_PARAMETERS);
+        }
+    }
 }
