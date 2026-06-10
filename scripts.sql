@@ -74,34 +74,83 @@ CREATE TABLE emprenapp.productos (
   DEFAULT CHARSET=utf8mb4
   COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE repartidores (
+                              id BIGINT NOT NULL AUTO_INCREMENT,
+                              usuario_id BIGINT NOT NULL,
+                              vehiculo VARCHAR(30) NOT NULL,
+                              emprendimiento_id BIGINT NULL,
+                              modalidad_liquidacion VARCHAR(30) NOT NULL,
+                              modalidad_de_cobro VARCHAR(30) NOT NULL,
+                              variable_de_cobro DECIMAL(12,2) NOT NULL,
+                              PRIMARY KEY (id),
+
+                              CONSTRAINT fk_repartidores_usuario FOREIGN KEY (usuario_id)
+                                  REFERENCES usuarios (id) ON DELETE RESTRICT ON UPDATE CASCADE,
+
+                              CONSTRAINT fk_repartidores_emprendimiento FOREIGN KEY (emprendimiento_id)
+                                  REFERENCES emprendimientos (id) ON DELETE RESTRICT ON UPDATE CASCADE,
+
+                              INDEX idx_repartidores_usuario_id (usuario_id),
+                              INDEX idx_repartidores_emprendimiento_id (emprendimiento_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE localidades (
+                             id BIGINT NOT NULL AUTO_INCREMENT,
+                             provincia VARCHAR(100) NOT NULL,
+                             partido VARCHAR(100) NOT NULL,
+                             localidad VARCHAR(100) NOT NULL,
+                             codigo_postal VARCHAR(20) NULL,
+                             PRIMARY KEY (id),
+                             INDEX idx_localidades_busqueda (provincia, partido, localidad)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE ubicaciones (
+                             id BIGINT NOT NULL AUTO_INCREMENT,
+                             calle VARCHAR(150) NOT NULL,
+                             numero INT NOT NULL,
+                             piso VARCHAR(10) NULL,
+                             depto VARCHAR(10) NULL,
+                             referencia VARCHAR(255) NULL,
+                             localidad_id BIGINT NOT NULL,
+                             PRIMARY KEY (id),
+                             CONSTRAINT fk_ubicaciones_localidad FOREIGN KEY (localidad_id)
+                                 REFERENCES localidades (id) ON DELETE RESTRICT ON UPDATE CASCADE,
+                             INDEX idx_ubicaciones_localidad_id (localidad_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 
 CREATE TABLE emprenapp.pedidos (
                                    id BIGINT NOT NULL AUTO_INCREMENT,
                                    user_id BIGINT NOT NULL,
+                                   repartidor_id BIGINT NULL,
                                    emprendimiento_id BIGINT NOT NULL,
+                                   ubicacion_destino_id BIGINT NOT NULL,
                                    fecha_creacion DATETIME NOT NULL,
                                    fecha_fin_proceso DATETIME NULL,
                                    fecha_finalizacion DATETIME NULL,
-                                   metodo_pago VARCHAR(30),
-                                   total DECIMAL(12,2),
-                                   costo_envio DECIMAL(10,2),
+                                   metodo_pago VARCHAR(30) NOT NULL,
+                                   total DECIMAL(12,2) NOT NULL,
+                                   costo_envio DECIMAL(10,2) NOT NULL,
                                    estado VARCHAR(20) NOT NULL,
                                    PRIMARY KEY (id),
-                                   CONSTRAINT fk_pedidos_user
-                                       FOREIGN KEY (user_id)
-                                           REFERENCES emprenapp.usuarios(id),
-                                   CONSTRAINT fk_pedidos_emprendimiento
-                                       FOREIGN KEY (emprendimiento_id)
-                                           REFERENCES emprenapp.emprendimientos(id),
-                                   INDEX idx_pedidos_user (user_id),
-                                   INDEX idx_pedidos_emprendimiento (emprendimiento_id),
-                                   INDEX idx_pedidos_estado (estado),
-                                   INDEX idx_pedidos_fecha_creacion (fecha_creacion),
-                                   INDEX idx_pedidos_estado_fecha (estado, fecha_creacion)
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci;
 
+                                   CONSTRAINT fk_pedidos_usuario FOREIGN KEY (user_id)
+                                       REFERENCES usuarios (id) ON DELETE RESTRICT ON UPDATE CASCADE,
+
+                                   CONSTRAINT fk_pedidos_repartidor FOREIGN KEY (repartidor_id)
+                                       REFERENCES repartidores (id) ON DELETE RESTRICT ON UPDATE CASCADE,
+
+                                   CONSTRAINT fk_pedidos_emprendimiento FOREIGN KEY (emprendimiento_id)
+                                       REFERENCES emprendimientos (id) ON DELETE RESTRICT ON UPDATE CASCADE,
+
+                                   CONSTRAINT fk_pedidos_ubicacion_destino FOREIGN KEY (ubicacion_destino_id)
+                                       REFERENCES ubicaciones (id) ON DELETE RESTRICT ON UPDATE CASCADE,
+
+                                   INDEX idx_pedidos_user_id (user_id),
+                                   INDEX idx_pedidos_repartidor_id (repartidor_id),
+                                   INDEX idx_pedidos_emprendimiento_id (emprendimiento_id),
+                                   INDEX idx_pedidos_estado (estado)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE emprenapp.detalle_pedido (
                                           id BIGINT NOT NULL AUTO_INCREMENT,
@@ -123,4 +172,3 @@ CREATE TABLE emprenapp.detalle_pedido (
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4
   COLLATE=utf8mb4_unicode_ci;
-
