@@ -7,7 +7,7 @@ import org.emprenApp.shared.application.exception.NotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-public interface EmprendimientoAdapter {
+public interface mprendimientoAdapter {
 
     EmprendimientoDTO crearEmprendimiento(EmprendimientoCreateRequest emprendimientoCreateRequest) throws GenericException;
 //    EmprendimientoDTO getEmprendimientoById(Long id) throws GenericException, NotFoundException;

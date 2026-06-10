@@ -51,7 +51,7 @@ public class EmprendimientoService implements EmprendimientoAdapter {
     @Override
     public EmprendimientoDTO getEmprendimientoById(Long id) throws BaseException {
         if (id == null || id < 0) {
-            logger.error("ERROR al crear Emprendimiento por id inválido");
+            logger.error("No se pudo buscar Emprendimiento por id inválido");
             throw new ValidationException();
         }
 
@@ -59,10 +59,10 @@ public class EmprendimientoService implements EmprendimientoAdapter {
             Emprendimiento emprendimiento = repository.findByIdAndEstado(id, EstadoEmprendimientoEnum.ACTIVO).orElseThrow(NotFoundException::new);
             return EmprendimientoMapper.INSTANCE.toDTO(emprendimiento);
         } catch (NotFoundException notFoundException) {
-            logger.error("ERROR Emprendimiento con id: {} no encontrado", id);
+            logger.error("Emprendimiento con id {} no encontrado", id);
             throw notFoundException;
         } catch (Exception exception) {
-            logger.error("ERROR inesperado al buscar emprendimiento {}", id);
+            logger.error("Error inesperado al buscar emprendimiento {}", id);
             throw new GenericException();
         }
     }
@@ -72,7 +72,7 @@ public class EmprendimientoService implements EmprendimientoAdapter {
             Page<Emprendimiento> emprendimientos = repository.findAllByEstado(EstadoEmprendimientoEnum.ACTIVO, pageable);
             return EmprendimientoMapper.INSTANCE.toPageDTO(emprendimientos);
         } catch (Exception exception) {
-            logger.error("ERROR inesperado al buscar emprendimientos: {}", exception.getMessage());
+            logger.error("Error inesperado al buscar emprendimientos: {}", exception.getMessage());
             throw new GenericException();
         }
     }
@@ -99,13 +99,13 @@ public class EmprendimientoService implements EmprendimientoAdapter {
             Emprendimiento updatedEmprendimiento = repository.save(emprendimiento);
             return EmprendimientoMapper.INSTANCE.toDTO(updatedEmprendimiento);
         } catch (ValidationException validationException) {
-            logger.error("ERROR No pasó el filtro de actualización de emprendimiento. Id: {}", id);
+            logger.error("No pasó el filtro de actualización de emprendimiento. Id: {}", id);
             throw validationException;
         } catch (NotFoundException notFoundException) {
-            logger.error("ERROR Emprendimiento con id: {} no encontrado para actualizar", id);
+            logger.error("Emprendimiento con id {} no encontrado para actualizar", id);
             throw notFoundException;
         } catch (Exception exception) {
-            logger.error("ERROR inesperado al actualizar emprendimiento {}", id, exception);
+            logger.error("Error inesperado al actualizar emprendimiento {}", id, exception);
             throw new GenericException();
         }
     }

@@ -2,9 +2,11 @@ package org.emprenApp.publicacion.application.mapper;
 
 import org.emprenApp.emprendimiento.application.dto.EmprendimientoDTO;
 import org.emprenApp.emprendimiento.domain.Emprendimiento;
+import org.emprenApp.emprendimiento.infrastructure.response.EmprendimientoResponse;
 import org.emprenApp.publicacion.application.dto.PublicacionDTO;
 import org.emprenApp.publicacion.domain.Publicacion;
 import org.emprenApp.publicacion.infrastructure.request.PublicacionCreateRequest;
+import org.emprenApp.publicacion.infrastructure.response.PublicacionResponse;
 import org.emprenApp.shared.application.enums.EstadoPublicacionEnum;
 import org.mapstruct.AfterMapping;
 import org.mapstruct.Mapper;
@@ -24,9 +26,16 @@ public interface PublicacionMapper {
 
     PublicacionDTO toDto(Publicacion publicacion);
 
+    PublicacionResponse toResponse(PublicacionDTO publicacionDTO);
+
     default Page<PublicacionDTO> toPageDTO(Page<Publicacion> page) {
         return page.map(this::toDto);
     }
+
+    default Page<PublicacionResponse> toResponse(Page<PublicacionDTO> publicaciones) {
+        return publicaciones.map(this::toResponse);
+    }
+
     Publicacion toEntityFromRequest(PublicacionCreateRequest request);
 
     @AfterMapping

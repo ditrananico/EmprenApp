@@ -1,6 +1,7 @@
 package org.emprenApp.publicacion.application.service;
 
 import lombok.RequiredArgsConstructor;
+import org.emprenApp.emprendimiento.application.mapper.EmprendimientoMapper;
 import org.emprenApp.publicacion.application.PublicacionAdapter;
 import org.emprenApp.publicacion.application.dto.PublicacionDTO;
 import org.emprenApp.publicacion.application.mapper.PublicacionMapper;
@@ -8,8 +9,10 @@ import org.emprenApp.publicacion.domain.Publicacion;
 import org.emprenApp.publicacion.domain.PublicacionRepository;
 import org.emprenApp.publicacion.infrastructure.request.PublicacionCreateRequest;
 import org.emprenApp.publicacion.infrastructure.request.PublicacionUpdateRequest;
+import org.emprenApp.shared.application.enums.EstadoPublicacionEnum;
 import org.emprenApp.shared.application.exception.BaseException;
 import org.emprenApp.shared.application.exception.GenericException;
+import org.emprenApp.shared.application.exception.NotFoundException;
 import org.emprenApp.shared.application.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,17 +46,61 @@ public class PublicacionService implements PublicacionAdapter {
 
     @Override
     public PublicacionDTO getPublicacionById(Long id) throws BaseException {
-        return null;
+        if (id == null || id < 0) {
+            logger.error("No se pudo buscar Publicacion por id inválido");
+            throw new ValidationException();
+        }
+        try {
+            Publicacion publicacion = repository.findByIdAndEstado(id, EstadoPublicacionEnum.ACTIVO).orElseThrow(NotFoundException::new);
+            return PublicacionMapper.INSTANCE.toDto(publicacion);
+        } catch (NotFoundException notFoundException) {
+            logger.error("Publicacion con id {} no encontrado", id);
+            throw notFoundException;
+        } catch (Exception exception) {
+            logger.error("Error inesperado al buscar publicacion {}", id);
+            throw exception;
+        }
     }
 
     @Override
     public Page<PublicacionDTO> getPublicaciones(Pageable pageable) throws BaseException {
-        return null;
+        try {
+            Page<Publicacion> publicaciones = repository.findAllByEstado(EstadoPublicacionEnum.ACTIVO, pageable);
+            return PublicacionMapper.INSTANCE.toPageDTO(publicaciones);
+        } catch (Exception exception) {
+            logger.error("Error inesperado al buscar publicaciones: {}", exception.getMessage());
+            throw new GenericException();
+        }
     }
 
     @Override
     public PublicacionDTO updatePublicacion(Long id, PublicacionUpdateRequest request) throws BaseException {
-        return null;
+        if (id == null || id < 0) {
+            logger.error("No se pudo actualizar publicación por id inválido");
+            throw new ValidationException();
+        }
+        try {
+            validationService.validateUpdateRequest(request);
+
+            Publicacion publicacion = repository.findByIdAndEstado(id, EstadoPublicacionEnum.ACTIVO).orElseThrow(NotFoundException::new);
+
+            if (request.getTitulo() != null) {
+                publicacion.setTitulo(request.getTitulo());
+            }
+            if (request.getDescripcion() != null) {
+                publicacion.setDescripcion(request.getDescripcion());
+            }
+
+            Publicacion updatedPublicacion = repository.save(publicacion);
+            return PublicacionMapper.INSTANCE.toDto(updatedPublicacion);
+
+        } catch (NotFoundException notFoundException) {
+            logger.error("Publicación con id {} no encontrada para actualizar", id);
+            throw notFoundException;
+        } catch (Exception exception) {
+            logger.error("Error inesperado al eliminar publicación con id {}", id);
+            throw new GenericException();
+        }
     }
 
     @Override
