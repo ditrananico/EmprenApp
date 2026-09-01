@@ -39,4 +39,10 @@ public class ValidateGeneric {
             throw new BaseException(ErrorCodeEnum.INVALID_PARAMETERS);
         }
     }
+
+    public static void validateMaxLength(String text, int max) throws BaseException {
+        if (text != null && text.length() > max) {
+            throw new BaseException(ErrorCodeEnum.INPUT_LENGTH);
+        }
+    }
 }

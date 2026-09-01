@@ -73,7 +73,10 @@ public class ProductoController extends BaseRestController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Boolean> deleteProducto(@PathVariable Long id) throws BaseException {
-        return responseOk(productoAdapter.deleteProducto(id));
+        logger.info("Eliminando producto: {}", id);
+        Boolean eliminado = productoAdapter.deleteProducto(id);
+        logger.info("Producto eliminado: {}", id);
+        return responseOk(eliminado);
     }
 
 }

@@ -13,20 +13,16 @@ import org.emprenApp.producto.domain.ProductoRepository;
 import org.emprenApp.producto.infrastructure.request.ProductCreateRequest;
 import org.emprenApp.producto.infrastructure.request.ProductUpdateRequest;
 import org.emprenApp.shared.application.application.ValidateGeneric;
-import org.emprenApp.shared.application.enums.ErrorCodeEnum;
+import org.emprenApp.shared.application.enums.EstadoEmprendimientoEnum;
 import org.emprenApp.shared.application.exception.BaseException;
 import org.emprenApp.shared.application.exception.GenericException;
 import org.emprenApp.shared.application.exception.NotFoundException;
-import org.emprenApp.shared.application.exception.ValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
 
 @Service
 @RequiredArgsConstructor
@@ -34,17 +30,23 @@ public class ProductoService implements ProductoAdapter {
 
     private final static Logger logger = LoggerFactory.getLogger(ProductoService.class);
 
-    @Autowired
-    private ProductoRepository productoRepository;
+    private static final int BUSQUEDA_MAX = 100;
 
-    CategoriaRepository categoriaRepository ;
-    EmprendimientoRepository emprendimientoRepository;
+    private final ProductoRepository productoRepository;
+    private final CategoriaRepository categoriaRepository;
+    private final EmprendimientoRepository emprendimientoRepository;
+    private final ProductoValidationService productoValidationService;
 
     @Override
     @Transactional
     public ProductoDTO createProducto(ProductCreateRequest request) throws BaseException {
         try {
             // Validación de Rol / Seguridad
+
+            productoValidationService.validarCamposProducto(
+                    request.getTitulo(), request.getDescripcion(), request.getPrecio(),
+                    request.getStock(), request.getStockMinimo());
+
             ValidateGeneric.validateId(request.getCategoriaId());
             Categoria categoria = categoriaRepository.findById(request.getCategoriaId()).orElseThrow(NotFoundException::new);
             ValidateGeneric.validateId(request.getEmprendimientoId());
@@ -55,6 +57,9 @@ public class ProductoService implements ProductoAdapter {
             producto.setCategoria(categoria);
             producto.setEmprendimiento(emprendimiento);
             // Manejo del Archivo / Foto del Producto
+
+            if (producto.getStock() == null)       producto.setStock(0);
+            if (producto.getStockMinimo() == null) producto.setStockMinimo(0);
 
             Producto created = productoRepository.save(producto);
             logger.info("Producto creado: {}", created.getTitulo());
@@ -70,7 +75,7 @@ public class ProductoService implements ProductoAdapter {
     @Override
     public ProductoDTO getProductoByID(Long id) throws BaseException {
         ValidateGeneric.validateId(id);
-        return ProductoMapper.INSTANCE.toDTO(productoRepository.findById(id).orElseThrow(NotFoundException::new));
+        return ProductoMapper.INSTANCE.toDTO(productoRepository.findByIdAndActiveTrue(id).orElseThrow(NotFoundException::new));
     }
 
     @Override
@@ -81,37 +86,18 @@ public class ProductoService implements ProductoAdapter {
 
             Producto producto = productoRepository.findById(request.getId()).orElseThrow(NotFoundException::new);
 
+            productoValidationService.validarCamposProducto(
+                    request.getTitulo(), request.getDescripcion(), request.getPrecio(),
+                    request.getStock(), request.getStockMinimo());
+
             if (request.getCategoriaId() != null) {
                 if (producto.getCategoria() == null || !producto.getCategoria().getId().equals(request.getCategoriaId())) {
-                    Categoria nuevaCategoria = categoriaRepository.findById(request.getCategoriaId()).orElseThrow(NotFoundException::new); // O el código de error correspondiente
+                    Categoria nuevaCategoria = categoriaRepository.findById(request.getCategoriaId()).orElseThrow(NotFoundException::new);
                     producto.setCategoria(nuevaCategoria);
                 }
             }
-            if (request.getTitulo() != null && !request.getTitulo().isBlank()) {
-                producto.setTitulo(request.getTitulo());
-            }
 
-            if (request.getPrecio() != null) {
-                if (request.getPrecio().compareTo(BigDecimal.ZERO) <= 0) {
-                    throw new BaseException(ErrorCodeEnum.INVALID_PRICE);
-                }
-                producto.setPrecio(request.getPrecio());
-            }
-            if (request.getStock() != null) {
-                if (request.getStock() < 0) {
-                    throw new BaseException(ErrorCodeEnum.INVALID_STOCK);
-                }
-                producto.setStock(request.getStock());
-            }
-            if (request.getDescripcion() != null) {
-                producto.setDescripcion(request.getDescripcion());
-            }
-            if (request.getStockMinimo() != null) {
-                if (request.getStockMinimo() < 0) {
-                    throw new BaseException(ErrorCodeEnum.INVALID_STOCK);
-                }
-                producto.setStockMinimo(request.getStockMinimo());
-            }
+            ProductoMapper.INSTANCE.updateEntityFromRequest(request, producto);
 
             Producto updated = productoRepository.save(producto);
             logger.info("Producto actualizado exitosamente: {}", updated.getId());
@@ -165,7 +151,7 @@ public class ProductoService implements ProductoAdapter {
     public Page<ProductoDTO> getProductosByEmprendimiento(Long emprendimientoId, Pageable pageable) throws BaseException {
         try {
             ValidateGeneric.validateId(emprendimientoId);
-            if (!emprendimientoRepository.existsById(emprendimientoId)) {
+            if (emprendimientoRepository.findByIdAndEstado(emprendimientoId, EstadoEmprendimientoEnum.ACTIVO).isEmpty()) {
                 throw new NotFoundException();
             }
             Page<Producto> productosPage = productoRepository.findByEmprendimientoIdAndActiveTrue(emprendimientoId, pageable);
@@ -183,11 +169,25 @@ public class ProductoService implements ProductoAdapter {
     public Page<ProductoDTO> searchProductos(String query, Pageable pageable) throws BaseException {
         try {
             ValidateGeneric.validateNotBlank(query);
-            Page<Producto> productosPage = productoRepository.searchProductosActivos(query, pageable);
+            //todo "validar ademas q no traiga un inyeccion de sql"  VER ESTO
+            String termino = query.trim();
+            ValidateGeneric.validateMaxLength(termino, BUSQUEDA_MAX);
+
+            termino = escaparComodinesLike(termino);
+
+            Page<Producto> productosPage = productoRepository.searchProductosActivos(termino, pageable);
             return productosPage.map(ProductoMapper.INSTANCE::toDTO);
+        } catch (BaseException e) {
+            throw e;
         } catch (Exception e) {
             logger.error("Error crítico en el buscador de productos con la query: {}", query, e);
             throw new GenericException();
         }
+    }
+
+    private String escaparComodinesLike(String valor) {
+        return valor.replace("|", "||")
+                    .replace("%", "|%")
+                    .replace("_", "|_");
     }
 }
