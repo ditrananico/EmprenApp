@@ -12,6 +12,8 @@ import org.emprenApp.shared.application.exception.GenericException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -26,22 +28,35 @@ public class ProductoController extends BaseRestController {
     @Autowired
     private ProductoAdapter productoAdapter;
 
-    @PostMapping("/")
-    public ResponseEntity createProducto(@RequestBody @Validated ProductCreateRequest request) throws BaseException {
-        try {
-            logger.info("Creando producto: " + request.getTitulo());
-            ProductoDTO created = productoAdapter.createProducto(request);
-            return responseOk(ProductoInfrastructureMapper.INSTANCE.toResponse(created));
-        } catch (GenericException e) {
-            logger.error("Error al crear producto: ", e);
-            return responseError(e);
-        }
+    @GetMapping("/categoria/{categoryId}")
+    public ResponseEntity<Page<ProductoDTO>> getProductosByCategoria(@PathVariable Long categoryId, Pageable pageable) throws BaseException {
+        Page<ProductoDTO> productos = productoAdapter.getProductosByCategoria(categoryId, pageable);
+        return responseOk(productos);
     }
 
     @GetMapping("/{id}")
-    public ProductResponse getProducto(@PathVariable Long id) throws BaseException {
+    public ResponseEntity<ProductResponse> getProducto(@PathVariable Long id) throws BaseException {
         ProductoDTO dto = productoAdapter.getProductoByID(id);
-        return ProductoInfrastructureMapper.INSTANCE.toResponse(dto);
+        return responseOk(ProductoInfrastructureMapper.INSTANCE.toResponse(dto));
+    }
+
+    @GetMapping("/emprendimiento/{emprendimientoId}")
+    public ResponseEntity<Page<ProductoDTO>> getProductosByEmprendimiento(
+            @PathVariable Long emprendimientoId,
+            Pageable pageable) throws BaseException {
+        return responseOk(productoAdapter.getProductosByEmprendimiento(emprendimientoId, pageable));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Page<ProductoDTO>> searchProductos(@RequestParam(required = false) String query, Pageable pageable) throws BaseException {
+        return responseOk(productoAdapter.searchProductos(query, pageable));
+    }
+
+    @PostMapping("/")
+    public ResponseEntity<ProductResponse> createProducto(@RequestBody @Validated ProductCreateRequest request) throws BaseException {
+        logger.info("Creando producto: " + request.getTitulo());
+        ProductoDTO created = productoAdapter.createProducto(request);
+        return responseOk(ProductoInfrastructureMapper.INSTANCE.toResponse(created));
     }
 
     @PutMapping("/")
@@ -57,7 +72,11 @@ public class ProductoController extends BaseRestController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProducto(@PathVariable Long id) throws BaseException {
-        return ResponseEntity.ok(productoAdapter.deleteProducto(id));
+    public ResponseEntity<Boolean> deleteProducto(@PathVariable Long id) throws BaseException {
+        logger.info("Eliminando producto: {}", id);
+        Boolean eliminado = productoAdapter.deleteProducto(id);
+        logger.info("Producto eliminado: {}", id);
+        return responseOk(eliminado);
     }
+
 }

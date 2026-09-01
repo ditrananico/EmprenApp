@@ -5,7 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.emprenApp.emprendimiento.domain.Emprendimiento;
+import org.emprenApp.repartidor.domain.Repartidor;
 import org.emprenApp.shared.application.enums.EstadoPedidoEnum;
+import org.emprenApp.shared.application.enums.MetodoPagoEnum;
+import org.emprenApp.ubicacion.domain.Ubicacion;
 import org.emprenApp.user.domain.User;
 
 import java.math.BigDecimal;
@@ -25,11 +28,11 @@ public class Pedido {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User usuario; // usuario_id
-    /*
-        @ManyToOne
-        @JoinColumn(name = "delivery_person_id")
-        private User deliveryPerson;
-     */
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "repartidor_id", nullable = true)
+    private Repartidor repartidor;
+
     @ManyToOne
     @JoinColumn(name = "emprendimiento_id", nullable = false)
     private Emprendimiento emprendimiento;
@@ -43,12 +46,13 @@ public class Pedido {
     @Column(name = "FECHA_FINALIZACION")
     private LocalDateTime fechaFinalizacion;
 
-   /* @ManyToOne
-    @JoinColumn(name = "direccion_destino")
-    private Address direccionDestino; // direccion_destino (FK a una tabla de direcciones)
-*/
-   @Column(name = "METODO_PAGO", length = 30)
-   private String metodoPago;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ubicacion_destino_id", nullable = false)
+    private Ubicacion direccionDestino;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "metodo_pago", nullable = false, length = 30)
+    private MetodoPagoEnum metodoPago;
 
     @Column(name = "TOTAL", precision = 12, scale = 2)
     private BigDecimal total;

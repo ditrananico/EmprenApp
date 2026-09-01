@@ -26,7 +26,7 @@ import static org.emprenApp.shared.application.enums.ErrorCodeEnum.GENERIC_ERROR
 @Service
 @RequiredArgsConstructor
 public class PedidoService implements PedidoAdapter {
-    private final static Logger logger = LoggerFactory.getLogger(UserService.class);
+    private final static Logger logger = LoggerFactory.getLogger(PedidoService.class);
 
     private final PedidoRepository pedidoRepository;
     private final UserAdapter  userService;

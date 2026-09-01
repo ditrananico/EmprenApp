@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.emprenApp.categoria.domain.Categoria;
+import org.emprenApp.emprendimiento.domain.Emprendimiento;
 
 import java.math.BigDecimal;
 
@@ -36,14 +38,12 @@ public class Producto {
     @Column(name = "ACTIVE")
     private Boolean active = true;
 
-      /* @ManyToOne
-    @JoinColumn(name = "CATEGORIA_ID", nullable = false)
-    private Categoria categoriaId;
+    @ManyToOne
+    @JoinColumn(name = "emprendimiento_id", nullable = false)
+    private Emprendimiento emprendimiento;
 
     @ManyToOne
-     @JoinColumn(name = "EMPRENDIMIENTO_ID", nullable = false)
-     private Emprendimiiento emprendimiientoId;
-
-       */
+    @JoinColumn(name = "CATEGORIA_ID", nullable = false)
+    private Categoria categoria;
 
 }
