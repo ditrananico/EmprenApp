@@ -1,9 +1,11 @@
-package org.emprenApp.ubicacion.domain;
+package org.emprenApp.localidad.domain;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 
 @Entity
 @Table(name = "localidades")
@@ -28,4 +30,12 @@ public class Localidad {
     @Column(name = "codigo_postal", length = 20)
     private String codigoPostal;
 
+    @Column(name = "latitud", precision = 9, scale = 6)
+    private BigDecimal latitud;
+
+    @Column(name = "longitud", precision = 9, scale = 6)
+    private BigDecimal longitud;
+
+    @Column(name = "active", nullable = false)
+    private Boolean active = true;
 }

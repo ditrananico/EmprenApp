@@ -100,9 +100,22 @@ CREATE TABLE localidades (
                              partido VARCHAR(100) NOT NULL,
                              localidad VARCHAR(100) NOT NULL,
                              codigo_postal VARCHAR(20) NULL,
+                             latitud DECIMAL(9,6) NULL,
+                             longitud DECIMAL(9,6) NULL,
+                             active BOOLEAN NOT NULL DEFAULT TRUE,
                              PRIMARY KEY (id),
-                             INDEX idx_localidades_busqueda (provincia, partido, localidad)
+                             UNIQUE KEY uk_localidades (provincia, partido, localidad),
+                             INDEX idx_localidades_busqueda (provincia, partido, localidad),
+                             INDEX idx_localidades_active (active)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Seed inicial de localidades
+INSERT INTO localidades (provincia, partido, localidad, codigo_postal, latitud, longitud, active)
+VALUES ('Buenos Aires', '25 de Mayo', '25 de Mayo', '6660', -35.430000, -60.172800, TRUE)
+ON DUPLICATE KEY UPDATE codigo_postal = VALUES(codigo_postal),
+                        latitud       = VALUES(latitud),
+                        longitud      = VALUES(longitud),
+                        active        = TRUE;
 
 CREATE TABLE ubicaciones (
                              id BIGINT NOT NULL AUTO_INCREMENT,
@@ -112,11 +125,25 @@ CREATE TABLE ubicaciones (
                              depto VARCHAR(10) NULL,
                              referencia VARCHAR(255) NULL,
                              localidad_id BIGINT NOT NULL,
+                             usuario_id BIGINT NULL,          -- != null => entrada de libreta del comprador
+                             alias VARCHAR(50) NULL,
+                             predeterminada BOOLEAN NOT NULL DEFAULT FALSE,
+                             activo BOOLEAN NOT NULL DEFAULT TRUE,
                              PRIMARY KEY (id),
                              CONSTRAINT fk_ubicaciones_localidad FOREIGN KEY (localidad_id)
                                  REFERENCES localidades (id) ON DELETE RESTRICT ON UPDATE CASCADE,
-                             INDEX idx_ubicaciones_localidad_id (localidad_id)
+                             CONSTRAINT fk_ubicaciones_usuario FOREIGN KEY (usuario_id)
+                                 REFERENCES usuarios (id) ON DELETE RESTRICT ON UPDATE CASCADE,
+                             INDEX idx_ubicaciones_localidad_id (localidad_id),
+                             INDEX idx_ubicaciones_usuario_id (usuario_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- FK emprendimientos.ubicacion_id -> ubicaciones (se agrega acá porque `emprendimientos` se crea antes que `ubicaciones`)
+ALTER TABLE emprenapp.emprendimientos
+    ADD COLUMN ubicacion_id BIGINT NULL,
+    ADD CONSTRAINT fk_emprendimientos_ubicacion FOREIGN KEY (ubicacion_id)
+        REFERENCES ubicaciones (id) ON DELETE RESTRICT ON UPDATE CASCADE,
+    ADD INDEX idx_emprendimientos_ubicacion (ubicacion_id);
 
 
 CREATE TABLE emprenapp.pedidos (

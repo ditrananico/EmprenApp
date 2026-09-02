@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.emprenApp.shared.application.enums.EstadoEmprendimientoEnum;
+import org.emprenApp.ubicacion.domain.Ubicacion;
 
 @Entity
 @Table(name = "emprendimientos")
@@ -26,5 +27,10 @@ public class Emprendimiento {
     @Column(name = "ESTADO", nullable = false, length = 20)
     private EstadoEmprendimientoEnum estado;
 
-    // Faltaría usuario_id y ubicación
+    // Direccion del emp (si se muda se actualiza).
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ubicacion_id")
+    private Ubicacion ubicacion;
+
+    // Faltaría usuario_id
 }

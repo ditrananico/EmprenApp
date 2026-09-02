@@ -14,6 +14,7 @@ public interface EmprendimientoMapper {
 
     EmprendimientoMapper INSTANCE = Mappers.getMapper(EmprendimientoMapper.class);
 
+    @Mapping(target = "ubicacion", ignore = true)
     Emprendimiento toEntity(EmprendimientoDTO emprendimientoDTO);
 
     EmprendimientoDTO toDTO(Emprendimiento emprendimiento);
@@ -29,6 +30,7 @@ public interface EmprendimientoMapper {
         if (emprendimiento.getEstado() == null) emprendimiento.setEstado(EstadoEmprendimientoEnum.ACTIVO);
     }
 
+    @Mapping(target = "ubicacion", ignore = true)
     Emprendimiento toEntityFromRequest(EmprendimientoCreateRequest request);
 
 }

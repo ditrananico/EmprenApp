@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.emprenApp.localidad.domain.Localidad;
+import org.emprenApp.user.domain.User;
 
 @Entity
 @Table(name = "ubicaciones")
@@ -34,4 +36,17 @@ public class Ubicacion {
     @ManyToOne
     @JoinColumn(name = "localidad_id", nullable = false)
     private Localidad localidad;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "usuario_id")
+    private User usuario;
+
+    @Column(name = "alias", length = 50)
+    private String alias;
+
+    @Column(name = "predeterminada", nullable = false)
+    private Boolean predeterminada = false;
+
+    @Column(name = "activo", nullable = false)
+    private Boolean activo = true;
 }
