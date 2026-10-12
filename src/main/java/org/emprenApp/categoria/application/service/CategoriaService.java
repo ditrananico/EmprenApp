@@ -36,7 +36,7 @@ public class CategoriaService implements CategoriaAdapter {
             ValidateGeneric.validateNotNull(request);
             categoriaValidationService.validarCampos(request.getNombre(), request.getDescripcion(), request.getTipo());
 
-            String nombre = request.getNombre().trim();
+            String nombre = normalizarNombre(request.getNombre());
             if (categoriaRepository.existsByNombreIgnoreCaseAndActiveTrue(nombre)) {
                 throw new BaseException(ErrorCodeEnum.DUPLICATE_KEY);
             }
@@ -85,7 +85,7 @@ public class CategoriaService implements CategoriaAdapter {
             categoriaValidationService.validarCampos(request.getNombre(), request.getDescripcion(), request.getTipo());
 
             if (request.getNombre() != null) {
-                String nombre = request.getNombre().trim();
+                String nombre = normalizarNombre(request.getNombre());
                 if (categoriaRepository.existsByNombreIgnoreCaseAndActiveTrueAndIdNot(nombre, categoria.getId())) {
                     throw new BaseException(ErrorCodeEnum.DUPLICATE_KEY);
                 }
@@ -119,5 +119,10 @@ public class CategoriaService implements CategoriaAdapter {
             logger.error("Error al eliminar la categoria ID: {}", id, e);
             throw new GenericException();
         }
+    }
+
+    // Misma normalizacion que aplica CategoriaMapper al guardar, para que el chequeo de duplicados compare lo que realmente queda en la base.
+    private String normalizarNombre(String nombre) {
+        return nombre.trim().replaceAll("\\s+", " ");
     }
 }
