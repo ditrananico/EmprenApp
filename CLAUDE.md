@@ -18,7 +18,7 @@ mvn test -Dtest=ClaseTest#metodo    # un solo test (perfil H2)
 ```
 
 - Requiere MySQL en `localhost:3306`; el esquema se crea a mano con `scripts.sql` (crea la base `emprenapp`). `data.sql` está vacío.
-- No hay linter. `src/test` solo tiene `application.yml`; no hay clases de test.
+- No hay linter. Tests unitarios: solo `categoria` (`CategoriaServiceTest`, 25 casos, JUnit 5 + Mockito + AssertJ); el resto de los módulos no tiene tests todavía. `src/test/resources/application.yml` es el perfil de test.
 - Java: el `pom.xml` declara `java.version` 21 pero el `maven-compiler-plugin` fija `source/target` 16 (gana el plugin). Es una inconsistencia conocida; no se corrige sin decisión del usuario.
 
 ## Arquitectura
@@ -65,10 +65,16 @@ Para agregar un módulo nuevo, copiar la estructura de un módulo completo (p. e
 - **Seguridad:** nunca escribas credenciales ni secretos en CLAUDE.md, código ni docs; van por variables de entorno. Si ves credenciales en `application.yml`, no las copies a ningún archivo y no edites ese archivo: el usuario las saca a mano.
 - **Entorno:** Windows y PowerShell. Responder siempre en español.
 - **Alcance:** solo backend. Pedir confirmación antes de refactors grandes.
-- **Tests:** importantes pero fuera de alcance por ahora; no los agregues salvo pedido explícito.
+- **Tests:** se testea módulo a módulo y a pedido del usuario; no agregues tests a un módulo que el usuario no haya indicado. Plantilla: `categoria/application/service/CategoriaServiceTest.java`. Convenciones:
+  - `@ExtendWith(MockitoExtension.class)`, repositorio con `@Mock`, `XxxValidationService` real con `@Spy`, servicio con `@InjectMocks`.
+  - `@DisplayName("CREATE|GET|PUT|DELETE: descripción")`.
+  - No stubbear lo que el servicio no alcanza a llamar (Mockito estricto falla con `UnnecessaryStubbingException`); si la validación corta antes, usar `verify(repo, never()).save(...)`.
+  - Errores: aseverar `((BaseException) e).getCode()` contra `ErrorCodeEnum.X.getCode()`.
+  - Baja lógica: capturar con `ArgumentCaptor` el argumento de `save` y verificar `active=false` y que no hubo `delete`/`deleteById`.
 
 ## Documentación
 
 - `docs/CONTEXTO_PRODUCTO.md`: idea del producto, modelo de datos objetivo, wishlist funcional y próximos pasos.
+- `docs/01-diagrama Entidad-Relacion (2).drawio`: diagrama ER de todas las entidades; el borde violeta marca las del MVP.
 - `scripts.sql`: esquema MySQL de referencia.
 - `src/main/resources/application.yml`: configuración de runtime; `src/test/resources/application.yml`: perfil de test.

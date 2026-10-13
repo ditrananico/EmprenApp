@@ -1,6 +1,6 @@
 # EmprenApp — Contexto de producto, estado del backend y hoja de ruta
 
-Documento de referencia. Las secciones **Estado actual** y **Hoja de ruta** son una foto del código al **2026-10-11**, rama `feature/nuevas-entidades` (último commit `1304d24`). Si el código cambia, revisar contra el código. Para reglas de trabajo, ver `CLAUDE.md`.
+Documento de referencia. Las secciones **Estado actual** y **Hoja de ruta** son una foto del código al **2026-10-13**, rama `feature/nuevas-entidades` (último commit `862f95d`). El alcance del MVP y las relaciones entre entidades salen de `docs/01-diagrama Entidad-Relacion (2).drawio` (ver §1.5 y §1.6). Si el código cambia, revisar contra el código. Para reglas de trabajo, ver `CLAUDE.md`.
 
 ## Idea
 
@@ -16,17 +16,19 @@ Leyenda: ✅ completo · 🟡 parcial / con bugs · 🔴 stub o vacío · ⬜ no
 
 ### 1.1 Entidades JPA existentes (9)
 
-| Módulo | Ruta base | Estado | Qué hay | Qué falta / problemas |
-|---|---|---|---|---|
-| `categoria` | `v1/categoria` | ✅ | CRUD + listado de activas, baja lógica (`active`) | Sin paginación (devuelve `List`); sin datos semilla (`data.sql` vacío) → nadie puede crear un producto hasta cargar categorías. Sin rol admin |
-| `localidad` | `v1/localidad` | ✅ | Get por id, provincias, partidos, búsqueda, create/update/delete | Comentarios `// Rol Admin` sin enforcement. Seed solo con 25 de Mayo |
-| `ubicacion` | `v1/ubicacion` | ✅ | Create, get, listar por usuario, update, delete lógico, dirección "predeterminada" | Cualquiera lee/edita ubicaciones de cualquier usuario (sin auth). No hay flujo que cree el *snapshot* de ubicación para un pedido ni que asigne ubicación a un emprendimiento |
-| `producto` | `v1/product` | 🟡 | Create, get, update, delete lógico, por categoría, por emprendimiento, búsqueda | `update`/`delete` usan `findById` sin filtrar `active` (se puede editar/borrar uno ya dado de baja); `createProducto` no exige emprendimiento ACTIVO; `POST` devuelve 200 en vez de 201; el `PUT` del controller se traga `GenericException` y devuelve 500 vacío; sin imagen; sin filtro por precio/rating; no hay endpoint de ajuste de stock; `getProductosByCategoria` y `getProductosByEmprendimiento` devuelven `ProductoDTO` directo (no Response) |
-| `emprendimiento` | `v1/emprendimiento` | 🟡 | Create, get, listar, update (name/description), delete lógico | **Bloqueante:** la entidad no mapea `user_id` pero la columna es `NOT NULL` en `scripts.sql` → el `INSERT` falla. No asigna `ubicacion` al crear/actualizar. Falta endpoint de cambio de estado (`// AGREGAR MÉTODO CAMBIAR ESTADO`). El controller no extiende `BaseRestController`. Hay un `EmprendimientoAdapter` legacy sin uso. Valida `id < 0` (permite 0). Sin `@Transactional`. Sin ownership (cualquiera edita cualquier emprendimiento) |
-| `user` | `v1/user` | 🟡 | Create, get por id/email, listar, delete lógico, update, "update status" | Ver bugs abajo (§1.3) |
-| `pedido` | `v1/pedido` | 🔴/🟡 | Get por id, listar por usuario y por emprendimiento (filtro opcional de estado), `PATCH` estado, cancelar | **`savePedido` vacío y `getAllPedidos` devuelve `null`: no se puede crear un pedido.** No hay `PedidoCreateRequest`/`Response`. `updateStatus` acepta cualquier transición y no setea `fechaFinProceso`/`fechaFinalizacion`. `cancelPedido` no repone stock. `getAllPedidoByEmprendimientoIDAndStatus` no valida que el emprendimiento exista. `/usuario/{id}` con `@PathVariable Long userId` → falla en runtime. `total`/`costoEnvio` nunca se calculan |
-| `detalle_pedido` | `v1/detalle-pedido` | 🟡 | Get detalles por pedido, agregar ítems, baja lógica de ítem | `obtenerDetallesPorPedido` devuelve `null`. Valida stock pero **no lo descuenta ni lo repone**. No recalcula `total` del pedido. No valida que el producto pertenezca al emprendimiento del pedido ni que esté activo. El `catch (Exception)` de `agregarDetallePedido` convierte los `BaseException` (stock insuficiente, duplicado) en `GENERIC_ERROR`. No hay modificar cantidad |
-| `repartidor` | `v1/repartidor` | 🔴 | Entidad completa (usuario, vehículo, emprendimiento, modalidad de cobro/liquidación, variable de cobro), repositorio, enums | `RepartidorService`, `RepartidorAdapter` y `RepartidorController` están **vacíos**. No hay DTO, mappers ni requests/responses. Sin flag de baja ni de disponibilidad |
+Columnas de prueba — **Prueba manual:** ✅ verificada a mano · ⬜ no probada · n/a no hay funcionalidad. **Tests unitarios:** ✅ con suite · ⬜ sin tests.
+
+| Módulo | Ruta base | Estado | Prueba manual | Tests unitarios | Qué hay | Qué falta / problemas |
+|---|---|---|---|---|---|---|
+| `categoria` | `v1/categoria` | ✅ | ✅ | ✅ (25 casos) | CRUD + listado de activas, baja lógica (`active`) | Sin paginación (devuelve `List`); sin datos semilla (`data.sql` vacío) → nadie puede crear un producto hasta cargar categorías. Sin rol admin |
+| `localidad` | `v1/localidad` | ✅ | ⬜ | ⬜ | Get por id, provincias, partidos, búsqueda, create/update/delete | Comentarios `// Rol Admin` sin enforcement. Seed solo con 25 de Mayo |
+| `ubicacion` | `v1/ubicacion` | ✅ | ⬜ | ⬜ | Create, get, listar por usuario, update, delete lógico, dirección "predeterminada" | Cualquiera lee/edita ubicaciones de cualquier usuario (sin auth). No hay flujo que cree el *snapshot* de ubicación para un pedido ni que asigne ubicación a un emprendimiento |
+| `producto` | `v1/product` | 🟡 | ⬜ | ⬜ | Create, get, update, delete lógico, por categoría, por emprendimiento, búsqueda | `update`/`delete` usan `findById` sin filtrar `active` (se puede editar/borrar uno ya dado de baja); `createProducto` no exige emprendimiento ACTIVO; `POST` devuelve 200 en vez de 201; el `PUT` del controller se traga `GenericException` y devuelve 500 vacío; sin imagen; sin filtro por precio/rating; no hay endpoint de ajuste de stock; `getProductosByCategoria` y `getProductosByEmprendimiento` devuelven `ProductoDTO` directo (no Response) |
+| `emprendimiento` | `v1/emprendimiento` | 🟡 | ⬜ | ⬜ | Create, get, listar, update (name/description), delete lógico | **Bloqueante:** la entidad no mapea `user_id` pero la columna es `NOT NULL` en `scripts.sql` → el `INSERT` falla. No asigna `ubicacion` al crear/actualizar. Falta endpoint de cambio de estado (`// AGREGAR MÉTODO CAMBIAR ESTADO`). El controller no extiende `BaseRestController`. Hay un `EmprendimientoAdapter` legacy sin uso. Valida `id < 0` (permite 0). Sin `@Transactional`. Sin ownership (cualquiera edita cualquier emprendimiento) |
+| `user` | `v1/user` | 🟡 | ⬜ | ⬜ | Create, get por id/email, listar, delete lógico, update, "update status" | Ver bugs abajo (§1.3) |
+| `pedido` | `v1/pedido` | 🔴/🟡 | ⬜ | ⬜ | Get por id, listar por usuario y por emprendimiento (filtro opcional de estado), `PATCH` estado, cancelar | **`savePedido` vacío y `getAllPedidos` devuelve `null`: no se puede crear un pedido.** No hay `PedidoCreateRequest`/`Response`. `updateStatus` acepta cualquier transición y no setea `fechaFinProceso`/`fechaFinalizacion`. `cancelPedido` no repone stock. `getAllPedidoByEmprendimientoIDAndStatus` no valida que el emprendimiento exista. `/usuario/{id}` con `@PathVariable Long userId` → falla en runtime. `total`/`costoEnvio` nunca se calculan |
+| `detalle_pedido` | `v1/detalle-pedido` | 🟡 | ⬜ | ⬜ | Get detalles por pedido, agregar ítems, baja lógica de ítem | `obtenerDetallesPorPedido` devuelve `null`. Valida stock pero **no lo descuenta ni lo repone**. No recalcula `total` del pedido. No valida que el producto pertenezca al emprendimiento del pedido ni que esté activo. El `catch (Exception)` de `agregarDetallePedido` convierte los `BaseException` (stock insuficiente, duplicado) en `GENERIC_ERROR`. No hay modificar cantidad |
+| `repartidor` | `v1/repartidor` | 🔴 | n/a | ⬜ | Entidad completa (usuario, vehículo, emprendimiento, modalidad de cobro/liquidación, variable de cobro), repositorio, enums | `RepartidorService`, `RepartidorAdapter` y `RepartidorController` están **vacíos**. No hay DTO, mappers ni requests/responses. Sin flag de baja ni de disponibilidad |
 
 ### 1.2 Entidades del modelo objetivo que **no existen todavía**
 
@@ -82,6 +84,95 @@ Nada de esto tiene entidad, tabla en `scripts.sql`, service ni controller.
 |---|---|---|
 | `origin/feature/publicacion` | Módulo `publicacion` completo-ish: entidad, repo, service, validation, mapper, controller (create/get/put), `EstadoPublicacionEnum`; también toca `UserService`, `UserController`, `UserMapper`, `GlobalHandlerException`, `ValidateGeneric`, `ErrorCodeEnum` | Divergió de `main`; el merge va a chocar en User y handler. Traer **solo** el módulo `publicacion` y revisar los cambios compartidos a mano |
 | `origin/feature/emprendimiento` | Solo merges de `develop` | Sin contenido propio relevante |
+
+### 1.5 Diagrama ER: todas las entidades, MVP y relaciones
+
+Fuente: `docs/01-diagrama Entidad-Relacion (2).drawio`. El diagrama marca el alcance con el color del borde de cada caja:
+
+- **Violeta (`#330066`) = entra en el MVP** (11 entidades), más `ROL` y `ROL_USUARIO`, que el diagrama tiene en verde pero se incorporaron al MVP el 2026-10-13 (13 en total).
+- Verde (`#27FF18`) y amarillo (`#FFFF43`) = fuera del MVP (9 y 8 entidades). El diagrama no explica la diferencia entre ambos; se conserva el color tal cual para no inventar un criterio.
+
+`EXCEPCIONES` se cubre con `ErrorCodeEnum` (sin tabla). `Localidad` existe en el código pero el diagrama no la dibuja como caja: `UBICACION` la referencia por `localidad_id`.
+
+| Entidad (diagrama) | Color | MVP | En el código | Relaciones (FK) |
+|---|---|---|---|---|
+| `USUARIO` | violeta | ✅ | 🟡 `user` | 1—N `EMPRENDIMIENTO`, `PEDIDO`, `RESEÑA`, `COMENTARIO`, `LIKES`, `FOLLOW`, `NOTIFICACION`; 1—1 `MONEDITA`; N—M `ROL` vía `ROL_USUARIO`; 1—N `REPARTIDOR` |
+| `EMPRENDIMIENTO` | violeta | ✅ | 🟡 `emprendimiento` | N—1 `USUARIO`; 1—1 `UBICACION`; 1—N `PRODUCTO`, `PUBLICACIÓN`, `HORARIOS`, `ARCHIVO`, `REPARTIDOR`, `BALANCE`, `FOLLOW`, `RESEÑA`; 1—1 `DETALLE_EMPRENDIMIENTO` |
+| `PRODUCTO` | violeta | ✅ | 🟡 `producto` | N—1 `CATEGORIA`; N—1 `EMPRENDIMIENTO`; 1—N `DETALLE_PEDIDO`, `DETALLE_PUBLICACION` |
+| `PEDIDO` | violeta | ✅ | 🔴/🟡 `pedido` | N—1 `USUARIO`, `EMPRENDIMIENTO`, `REPARTIDOR` (opcional), `UBICACION` (`direccion_destino`); 1—N `DETALLE_PEDIDO`; 1—N `HISTORICO_BALANCE`; 1—N `RESEÑA` |
+| `DETALLE_PEDIDO` | violeta | ✅ | 🟡 `detalle_pedido` | N—1 `PEDIDO`; N—1 `PRODUCTO` |
+| `UBICACION` | violeta | ✅ | ✅ `ubicacion` | N—1 `Localidad` (código); referenciada por `EMPRENDIMIENTO` y `PEDIDO` |
+| `REPARTIDOR` | violeta | ✅ | 🔴 `repartidor` | N—1 `USUARIO`; N—1 `EMPRENDIMIENTO`; 1—N `PEDIDO`, `BALANCE`, `RESEÑA` |
+| `PUBLICACIÓN` | violeta | ✅ | ⬜ (rama `origin/feature/publicacion`) | N—1 `EMPRENDIMIENTO`; 1—N `DETALLE_PUBLICACION`, `COMENTARIO`, `LIKES`, `REPORTE` |
+| `DETALLE_PUBLICACION` | violeta | ✅ | ⬜ | N—1 `PUBLICACIÓN`; N—1 `PRODUCTO`; `promocion_id` → `PROMOCIONES` (**no está en el MVP**, ver §1.6) |
+| `BALANCE` | violeta | ✅ | ⬜ | N—1 `EMPRENDIMIENTO`; N—1 `REPARTIDOR` (acumulado `monto`) |
+| `HISTORICO_BALANCE` | violeta | ✅ | ⬜ | N—1 `EMPRENDIMIENTO`, `REPARTIDOR`, `PEDIDO` (un movimiento por pedido) |
+| `CATEGORIA` | verde | — | ✅ `categoria` (con tests) | 1—N `PRODUCTO` |
+| `ROL` / `ROL_USUARIO` | verde | ✅ (incorporado al MVP por decisión del 2026-10-13) | ⬜ | N—M `USUARIO`–`ROL` |
+| `ARCHIVO` | verde | — | ⬜ | N—1 `EMPRENDIMIENTO` (`id_componente` + `tipo` para producto/perfil/publicación) |
+| `NOTIFICACION` | verde | — | ⬜ | N—1 `USUARIO` |
+| `REPORTE` | verde | — | ⬜ | N—1 `PUBLICACIÓN`; N—1 `USUARIO` |
+| `PROPIEDADES` / `PROPIEDAD_USUARIO` | verde | — | ⬜ | `PROPIEDAD_USUARIO` N—1 `USUARIO` (pares nombre/valor genéricos) |
+| `HORARIOS` | amarillo | — | ⬜ | N—1 `EMPRENDIMIENTO` |
+| `DETALLE_EMPRENDIMIENTO` | amarillo | — | ⬜ | 1—1 `EMPRENDIMIENTO` (zona y tipo de cobertura) |
+| `PROMOCIONES` | amarillo | — | ⬜ | referenciada por `DETALLE_PUBLICACION` |
+| `RESEÑA` | amarillo | — | ⬜ | N—1 `USUARIO`, `PEDIDO`, `REPARTIDOR`, `EMPRENDIMIENTO`; 1—N `LIKES` |
+| `COMENTARIO` | amarillo | — | ⬜ | N—1 `USUARIO`; N—1 `PUBLICACIÓN`; 1—N `LIKES` |
+| `LIKES` | amarillo | — | ⬜ | N—1 `USUARIO`; apunta a `RESEÑA` / `PUBLICACIÓN` / `COMENTARIO` |
+| `FOLLOW` | amarillo | — | ⬜ | N—1 `USUARIO`; N—1 `EMPRENDIMIENTO` |
+| `MONEDITA` | amarillo | — | ⬜ | 1—1 `USUARIO` (`user_id` es PK y FK) |
+
+**Incoherencias del diagrama a resolver antes de modelar:**
+
+- `DETALLE_PUBLICACION.promocion_id` apunta a `PROMOCIONES`, que no es MVP. Para el MVP, `promocion_id` debe ser nullable y sin FK activa, o `PROMOCIONES` debe entrar.
+- Hay tres flechas sin destino: `DETALLE_PUBLICACION`, `BALANCE` y `REPORTE` salen hacia nada. Lo más probable es que apunten a `PROMOCIONES`, `HISTORICO_BALANCE` y `USUARIO` respectivamente.
+- Hay una flecha `NOTIFICACION → EMPRENDIMIENTO`, pero la tabla solo tiene `usuario_id`. Confirmar si es un error de dibujo o falta una columna.
+- `PEDIDO.direccion_destino` es FK a `UBICACION` pero no tiene flecha.
+- `HORARIOS` declara `emprendimiento_id` como PK: con varios tramos por día necesita su propio `id`.
+- `BALANCE` / `HISTORICO_BALANCE` listan todas sus FK como "PK" (clave compuesta); definir si el balance es único por (emprendimiento, repartidor).
+- `CATEGORIA` en el diagrama tiene `tipo`, `nombre`, `estado`; el código usa `active` y suma `descripcion`.
+- `ROL`/`ROL_USUARIO` figuran en verde pero **ya entran al MVP** (decisión del 2026-10-13): sin roles no hay ownership real (ver §2, P3). Actualizar el color en el `.drawio` cuando se pueda.
+
+### 1.6 Ranking de entidades: de la más importante a la menos
+
+Criterio: primero el MVP (violeta), ordenado por dependencias y por cuánto desbloquea; después lo que está fuera del MVP, ordenado por valor para el flujo central. Cada ítem entra **con sus tests unitarios** (plantilla: `CategoriaServiceTest`).
+
+**A. Base ya hecha**
+
+| # | Entidad | Estado |
+|---|---|---|
+| 0 | `Categoria` · `Ubicacion` · `Localidad` | ✅ (solo `Categoria` con tests) |
+
+**B. MVP — núcleo transaccional (orden de ataque)**
+
+| # | Entidad | Estado | Por qué en este lugar |
+|---|---|---|---|
+| 1 | `User` (+ contraseña con BCrypt) | 🟡 con bugs | Base de la autenticación y FK de casi todo: `updateUser`/`updateStatusUser`/email duplicado/password en respuestas |
+| 2 | `Rol` / `RolUsuario` + autenticación (JWT) y autorización | ⬜ | Entra al MVP. Pasos en §2 P3 / §6.1; es el cimiento de ownership para Emprendimiento y Pedido |
+| 3 | `Emprendimiento` | 🟡 bloqueante | El `INSERT` falla (`user_id` sin mapear). Arreglo chico; con auth, además es el primer recurso con ownership |
+| 4 | `Producto` | 🟡 | `update`/`delete` sin filtrar `active`, falta ajuste de stock; lo consumen pedido y publicación |
+| 5 | `Pedido` | 🔴/🟡 | Corazón del MVP y la pieza más pesada: crear, total/envío, máquina de estados |
+| 6 | `DetallePedido` | 🟡 | Se construye junto a `Pedido`: ciclo de stock, recálculo de total |
+| 7 | `Repartidor` | 🔴 | Stub; necesita `Pedido` estable para asignar y aceptar |
+| 8 | `Publicacion` | ⬜ (hay rama) | Superficie visible del emprendimiento; el código ya existe, es traer y revisar |
+| 9 | `DetallePublicacion` | ⬜ | Depende de `Publicacion` + `Producto`; `promocion_id` nullable |
+| 10 | `Balance` | ⬜ | Necesita `Pedido` FINALIZADO y `Repartidor` con modalidad de cobro |
+| 11 | `HistoricoBalance` | ⬜ | Movimiento por pedido; va junto con `Balance` |
+
+**C. Fuera del MVP — por valor decreciente**
+
+| # | Entidad | Color | Nota |
+|---|---|---|---|
+| 12 | `Horarios` | amarillo | "Abierto ahora" al crear pedido |
+| 13 | `DetalleEmprendimiento` | amarillo | Cobertura por partido/distancia al crear pedido |
+| 14 | `Archivo` | verde | Imágenes de producto/emprendimiento/perfil |
+| 15 | `Resena` | amarillo | Solo sobre pedido FINALIZADO; sello de confianza |
+| 16 | `Promocion` | amarillo | Altera el cálculo de total del pedido |
+| 17 | `Notificacion` | verde | Primero por eventos internos |
+| 18 | `Follow` · `Comentario` · `Likes` | amarillo | Capa social |
+| 19 | `Reporte` | verde | Moderación; depende de `Publicacion` y de roles |
+| 20 | `Monedita` | amarillo | Saldo interno |
+| 21 | `Propiedades` / `PropiedadUsuario` | verde | Parámetros genéricos (límites de distancia) |
 
 ---
 
@@ -158,7 +249,7 @@ El orden respeta dependencias: nada de lo social/monetario sirve si no se puede 
 
 1. `Propiedad` / `PropiedadUsuario` (límites de distancia, preferencias).
 2. Buscador general (productos + emprendimientos + publicaciones), hoy solo existe búsqueda de productos.
-3. Tests (unitarios de servicios y de integración con H2) — fuera de alcance hasta pedido explícito.
+3. Tests (unitarios de servicios y de integración con H2) — **iniciados**: `CategoriaService` ya tiene su suite unitaria (25 casos); falta el resto de los módulos y los tests de integración/controller.
 4. Unificar nomenclatura (`product`→`producto`, `active/activo/estado`, `status/estado`) **solo con aprobación**; unificar `DataSource` y Java 21/16.
 
 ---
@@ -229,7 +320,9 @@ Del `.drawio` original. Entre paréntesis, estado actual en el código.
 
 ## 5. Resumen ejecutivo
 
-- **Completos (3):** Categoría, Localidad, Ubicación.
+- **Completos (3):** Categoría (la única con tests unitarios), Localidad, Ubicación.
+- **MVP (diagrama, violeta + `Rol`/`RolUsuario`):** 13 entidades. 1 completa (`Ubicacion`), 6 con funcionalidad parcial o stub (`Emprendimiento`, `User`, `Producto`, `Pedido`, `DetallePedido`, `Repartidor`), 6 sin crear (`Rol`, `RolUsuario`, `Publicacion`, `DetallePublicacion`, `Balance`, `HistoricoBalance`). Orden de ataque en §1.6.
+- **Pruebas:** solo `Categoria` tiene prueba manual y tests unitarios.
 - **Con funcionalidad pero incompletos o con bugs (5):** Producto, Emprendimiento, User, Pedido, DetallePedido.
 - **Entidad definida sin funcionalidad (1):** Repartidor.
 - **Sin nada (≈16):** Rol/RolUsuario, Archivo, Horarios, DetalleEmprendimiento, Publicacion/DetallePublicacion (hay rama), Promocion, Resena, Comentario, Like, Follow, Reporte, Notificacion, Balance/HistoricoBalance, Moneda, Propiedad/PropiedadUsuario.
@@ -253,7 +346,7 @@ Este proyecto es, además de un producto, un vehículo de aprendizaje. Por eso e
 
 ### 6.2 Pruebas unitarias
 
-**Qué se prueba y con qué.** Hoy `src/test` no tiene clases de test. La regla de `CLAUDE.md` ("no agregar tests salvo pedido explícito") queda superada por este pedido y debería actualizarse cuando se empiece. El enfoque recomendado sigue la pirámide de pruebas: muchas pruebas **unitarias** rápidas de la lógica de negocio, algunas de **integración** de persistencia y pocas de **extremo a extremo**. Las herramientas son las que ya trae `spring-boot-starter-test` (verificar que esté en el `pom.xml`): **JUnit 5** como runner, **Mockito** para aislar dependencias y **AssertJ** para aserciones legibles.
+**Qué se prueba y con qué.** **Estado actual:** ya hay una suite unitaria de referencia, `CategoriaServiceTest` (25 casos: CREATE, GET, PUT y DELETE, con validaciones de largo, duplicados, no encontrado, error inesperado y baja lógica con `ArgumentCaptor`). Es la plantilla para los demás módulos; las convenciones están en `CLAUDE.md` (Reglas de trabajo → Tests). Pendiente en `categoria`: `request == null` en create/update, `id == null` en get/delete, actualización parcial con `nombre == null`, error inesperado en update/delete y tests propios de `CategoriaValidationService`. El enfoque recomendado sigue la pirámide de pruebas: muchas pruebas **unitarias** rápidas de la lógica de negocio, algunas de **integración** de persistencia y pocas de **extremo a extremo**. Las herramientas son las que ya trae `spring-boot-starter-test` (verificar que esté en el `pom.xml`): **JUnit 5** como runner, **Mockito** para aislar dependencias y **AssertJ** para aserciones legibles.
 
 **Dónde está el valor.** No tiene sentido testear getters ni mappers generados. El retorno está en la lógica con reglas: `PedidoService` (transiciones de estado válidas e inválidas, cálculo de total), el ciclo de stock (descontar, reponer, stock insuficiente), `ProductoValidationService`, y más adelante las promociones y la autorización. Un test unitario de servicio instancia la clase con sus repositorios *mockeados* y verifica comportamiento: dado este estado, cuando ejecuto esto, entonces obtengo este resultado o esta excepción con este `ErrorCodeEnum`. Se escribe con el patrón **Given / When / Then**, un caso por test y nombres que describen la regla (`cancelarPedido_finalizado_noPermite`). Esto además sirve como documentación viva del negocio.
 

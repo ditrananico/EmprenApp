@@ -34,6 +34,7 @@ public class CategoriaService implements CategoriaAdapter {
     public CategoriaDTO createCategoria(CategoriaCreateRequest request) throws BaseException {
         try {
             ValidateGeneric.validateNotNull(request);
+            ValidateGeneric.validateNotBlank(request.getNombre());
             categoriaValidationService.validarCampos(request.getNombre(), request.getDescripcion(), request.getTipo());
 
             String nombre = normalizarNombre(request.getNombre());
@@ -121,7 +122,6 @@ public class CategoriaService implements CategoriaAdapter {
         }
     }
 
-    // Misma normalizacion que aplica CategoriaMapper al guardar, para que el chequeo de duplicados compare lo que realmente queda en la base.
     private String normalizarNombre(String nombre) {
         return nombre.trim().replaceAll("\\s+", " ");
     }
