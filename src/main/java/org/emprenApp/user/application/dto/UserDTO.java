@@ -3,7 +3,7 @@ package org.emprenApp.user.application.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.emprenApp.shared.application.enums.EstadoUserEnum;
+import org.emprenApp.shared.application.enums.UserStatusEnum;
 
 import java.sql.Timestamp;
 
@@ -14,21 +14,25 @@ public class UserDTO {
 
     private Long id;
     private String email;
-    private Timestamp fechaCreacion;
-    private EstadoUserEnum estado;
-    private String nombre;
-    private String apellido;
-    private String telefono;
+    private Timestamp createdAt;
+    private UserStatusEnum status;
+    private String firstName;
+    private String lastName;
+    private String phone;
+    private Timestamp emailVerifiedAt;
+    private Timestamp phoneVerifiedAt;
 
     public String toString(){
         return "UserDTO{" +
                 "id=" + id +
                 ", email='" + email + '\'' +
-                ", fechaCreacion=" + fechaCreacion +
-                ", estado=" + estado +
-                ", nombre='" + nombre + '\'' +
-                ", apellido='" + apellido + '\'' +
-                ", telefono='" + telefono + '\'' +
+                ", createdAt=" + createdAt +
+                ", status=" + status +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", phone='" + phone + '\'' +
+                ", emailVerifiedAt=" + emailVerifiedAt +
+                ", phoneVerifiedAt=" + phoneVerifiedAt +
                 '}';
     }
 }

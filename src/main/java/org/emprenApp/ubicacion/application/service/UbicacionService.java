@@ -5,7 +5,7 @@ import org.emprenApp.localidad.domain.Localidad;
 import org.emprenApp.localidad.domain.LocalidadRepository;
 import org.emprenApp.shared.application.application.ValidateGeneric;
 import org.emprenApp.shared.application.enums.ErrorCodeEnum;
-import org.emprenApp.shared.application.enums.EstadoUserEnum;
+import org.emprenApp.shared.application.enums.UserStatusEnum;
 import org.emprenApp.shared.application.exception.BaseException;
 import org.emprenApp.shared.application.exception.GenericException;
 import org.emprenApp.shared.application.exception.NotFoundException;
@@ -162,7 +162,7 @@ public class UbicacionService implements UbicacionAdapter {
             return null;
         }
         ValidateGeneric.validateId(usuarioId);
-        return userRepository.findByIdAndEstado(usuarioId, EstadoUserEnum.ACTIVO).orElseThrow(NotFoundException::new);
+        return userRepository.findByIdAndStatus(usuarioId, UserStatusEnum.ACTIVE).orElseThrow(NotFoundException::new);
     }
 
     // Si esta ubicación queda marcada como predeterminada, se desmarca cualquier otra del mismo usuario.

@@ -13,7 +13,7 @@ public class UserUpdateRequest {
 
     @NotBlank(message = "El email no puede estar vacío")
     private String email;
-    private String nombre;
-    private String apellido;
-    private String telefono;
+    private String firstName;
+    private String lastName;
+    private String phone;
 }

@@ -2,19 +2,22 @@
 CREATE DATABASE emprenapp ;
 USE emprenapp ;
 
-CREATE TABLE emprenapp.usuarios (
+CREATE TABLE emprenapp.users (
                                     id BIGINT NOT NULL AUTO_INCREMENT,
-                                    email VARCHAR(100) NOT NULL,
+                                    email VARCHAR(255) NOT NULL,
                                     password VARCHAR(60) NOT NULL,
-                                    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                                    estado VARCHAR(20) NOT NULL,
-                                    nombre VARCHAR(100) NOT NULL,
-                                    apellido VARCHAR(100) NOT NULL,
-                                    telefono VARCHAR(15),
+                                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                    status VARCHAR(20) NOT NULL,
+                                    first_name VARCHAR(100) NOT NULL,
+                                    last_name VARCHAR(100) NOT NULL,
+                                    phone VARCHAR(20) NOT NULL,
+                                    email_verified_at TIMESTAMP NULL DEFAULT NULL,
+                                    phone_verified_at TIMESTAMP NULL DEFAULT NULL,
                                     PRIMARY KEY (id),
                                     UNIQUE KEY uk_users_email (email),
-                                    INDEX idx_users_estado (estado),
-                                    INDEX idx_users_nombre_apellido (nombre, apellido)
+                                    UNIQUE KEY uk_users_phone (phone),
+                                    INDEX idx_users_status (status),
+                                    INDEX idx_users_first_name_last_name (first_name, last_name)
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4
   COLLATE=utf8mb4_unicode_ci;
@@ -28,7 +31,7 @@ CREATE TABLE emprenapp.emprendimientos (
                                            PRIMARY KEY (id),
                                            CONSTRAINT fk_emprendimientos_user
                                                FOREIGN KEY (user_id)
-                                                   REFERENCES emprenapp.usuarios(id),
+                                                   REFERENCES emprenapp.users(id),
                                            INDEX idx_emprendimientos_user (user_id),
                                            INDEX idx_emprendimientos_estado (estado),
                                            INDEX idx_emprendimientos_name (name)
@@ -85,7 +88,7 @@ CREATE TABLE repartidores (
                               PRIMARY KEY (id),
 
                               CONSTRAINT fk_repartidores_usuario FOREIGN KEY (usuario_id)
-                                  REFERENCES usuarios (id) ON DELETE RESTRICT ON UPDATE CASCADE,
+                                  REFERENCES users (id) ON DELETE RESTRICT ON UPDATE CASCADE,
 
                               CONSTRAINT fk_repartidores_emprendimiento FOREIGN KEY (emprendimiento_id)
                                   REFERENCES emprendimientos (id) ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -133,7 +136,7 @@ CREATE TABLE ubicaciones (
                              CONSTRAINT fk_ubicaciones_localidad FOREIGN KEY (localidad_id)
                                  REFERENCES localidades (id) ON DELETE RESTRICT ON UPDATE CASCADE,
                              CONSTRAINT fk_ubicaciones_usuario FOREIGN KEY (usuario_id)
-                                 REFERENCES usuarios (id) ON DELETE RESTRICT ON UPDATE CASCADE,
+                                 REFERENCES users (id) ON DELETE RESTRICT ON UPDATE CASCADE,
                              INDEX idx_ubicaciones_localidad_id (localidad_id),
                              INDEX idx_ubicaciones_usuario_id (usuario_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -162,7 +165,7 @@ CREATE TABLE emprenapp.pedidos (
                                    PRIMARY KEY (id),
 
                                    CONSTRAINT fk_pedidos_usuario FOREIGN KEY (user_id)
-                                       REFERENCES usuarios (id) ON DELETE RESTRICT ON UPDATE CASCADE,
+                                       REFERENCES users (id) ON DELETE RESTRICT ON UPDATE CASCADE,
 
                                    CONSTRAINT fk_pedidos_repartidor FOREIGN KEY (repartidor_id)
                                        REFERENCES repartidores (id) ON DELETE RESTRICT ON UPDATE CASCADE,
@@ -196,6 +199,45 @@ CREATE TABLE emprenapp.detalle_pedido (
                                           INDEX idx_detalle_pedido_pedido (pedido_id),
                                           INDEX idx_detalle_pedido_producto (producto_id),
                                           INDEX idx_detalle_pedido_pedido_producto (pedido_id, producto_id)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE emprenapp.permissions (
+                                       id BIGINT NOT NULL AUTO_INCREMENT,
+                                       name VARCHAR(100) NOT NULL,
+                                       description VARCHAR(255),
+                                       active BOOLEAN NOT NULL DEFAULT TRUE,
+                                       PRIMARY KEY (id),
+                                       INDEX idx_permissions_active (active),
+                                       INDEX idx_permissions_name (name)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE emprenapp.roles (
+                                 id BIGINT NOT NULL AUTO_INCREMENT,
+                                 name VARCHAR(50) NOT NULL,
+                                 description VARCHAR(255),
+                                 active BOOLEAN NOT NULL DEFAULT TRUE,
+                                 PRIMARY KEY (id),
+                                 INDEX idx_roles_active (active),
+                                 INDEX idx_roles_name (name)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE emprenapp.role_permissions (
+                                            role_id BIGINT NOT NULL,
+                                            permission_id BIGINT NOT NULL,
+                                            PRIMARY KEY (role_id, permission_id),
+                                            CONSTRAINT fk_role_permissions_role
+                                                FOREIGN KEY (role_id)
+                                                    REFERENCES emprenapp.roles(id),
+                                            CONSTRAINT fk_role_permissions_permission
+                                                FOREIGN KEY (permission_id)
+                                                    REFERENCES emprenapp.permissions(id),
+                                            INDEX idx_role_permissions_permission (permission_id)
 ) ENGINE=InnoDB
   DEFAULT CHARSET=utf8mb4
   COLLATE=utf8mb4_unicode_ci;

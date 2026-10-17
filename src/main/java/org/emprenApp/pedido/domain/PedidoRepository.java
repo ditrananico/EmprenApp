@@ -1,7 +1,7 @@
 package org.emprenApp.pedido.domain;
 
 import org.emprenApp.shared.application.enums.EstadoPedidoEnum;
-import org.emprenApp.shared.application.enums.EstadoUserEnum;
+import org.emprenApp.shared.application.enums.UserStatusEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

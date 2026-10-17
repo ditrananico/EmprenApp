@@ -1,6 +1,6 @@
 package org.emprenApp.user.application.mapper;
 
-import org.emprenApp.shared.application.enums.EstadoUserEnum;
+import org.emprenApp.shared.application.enums.UserStatusEnum;
 import org.emprenApp.user.application.dto.UserDTO;
 import org.emprenApp.user.domain.User;
 import org.emprenApp.user.infrastructure.request.UserCreateRequest;
@@ -19,8 +19,7 @@ public interface UserMapper {
 
     User toEntity(UserDTO userDTO);
 
-    @Mapping(target = "telefono", source = "telefonoPersonal")
-    @Mapping(target = "nombre", source = "nombre", qualifiedByName = "limpiarBlancosEnElNombre")
+    @Mapping(target = "firstName", source = "firstName", qualifiedByName = "trimName")
     User toEntity(UserCreateRequest userCreateRequest);
 
     UserDTO toDTO(User user);
@@ -32,20 +31,20 @@ public interface UserMapper {
 
     @AfterMapping
     default void setDefaultValues(@MappingTarget User user) {
-        if (user.getEstado() == null) {
-            user.setEstado(EstadoUserEnum.ACTIVO);
+        if (user.getStatus() == null) {
+            user.setStatus(UserStatusEnum.ACTIVE);
         }
-        if (user.getFechaCreacion() == null) {
-            Instant ahora = Instant.now();
-            user.setFechaCreacion(Timestamp.from(ahora));
+        if (user.getCreatedAt() == null) {
+            Instant now = Instant.now();
+            user.setCreatedAt(Timestamp.from(now));
         }
     }
 
-    @Named("limpiarBlancosEnElNombre")
-    static String limpiarBlancosEnElNombre(String nombre){
-        if (nombre == null){
+    @Named("trimName")
+    static String trimName(String name){
+        if (name == null){
             return null;
         }
-        return nombre.trim();
+        return name.trim();
     }
 }

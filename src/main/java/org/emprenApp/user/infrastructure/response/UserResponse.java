@@ -13,9 +13,9 @@ public class UserResponse {
 
     private Long id;
     private String email;
-    private String nombre;
-    private String apellido;
-    private String telefono;
-    private Timestamp fechaCreacion;
+    private String firstName;
+    private String lastName;
+    private String phone;
+    private Timestamp createdAt;
 
 }

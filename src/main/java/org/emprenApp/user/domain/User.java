@@ -2,12 +2,12 @@ package org.emprenApp.user.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.emprenApp.shared.application.enums.EstadoUserEnum;
+import org.emprenApp.shared.application.enums.UserStatusEnum;
 
 import java.sql.Timestamp;
 
 @Entity
-@Table(name = "usuarios")
+@Table(name = "users")
 @Data
 public class User {
 
@@ -15,26 +15,33 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "EMAIL", nullable = false, unique = true, length = 100)
+    @Column(name = "email", nullable = false, unique = true, length = 255)
     private String email;
 
-    @Column(name = "PASSWORD", nullable = false, length = 60)
+    @Column(name = "password", nullable = false, length = 60)
     private String password;
 
-    @Column(name = "FECHA_CREACION", nullable = false)
-    private Timestamp fechaCreacion;
+    @Column(name = "created_at", nullable = false)
+    private Timestamp createdAt;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "ESTADO", nullable = false, length = 20)
-    private EstadoUserEnum estado;
+    @Column(name = "status", nullable = false, length = 20)
+    private UserStatusEnum status;
 
-    @Column(name = "NOMBRE", nullable = false, length = 100)
-    private String nombre;
+    @Column(name = "first_name", nullable = false, length = 100)
+    private String firstName;
 
-    @Column(name = "APELLIDO", nullable = false, length = 100)
-    private String apellido;
+    @Column(name = "last_name", nullable = false, length = 100)
+    private String lastName;
 
-    @Column(name = "TELEFONO", length = 15)
-    private String telefono;
+    @Column(name = "phone", nullable = false, unique = true, length = 20)
+    private String phone;
+
+    @Column(name = "email_verified_at")
+    private Timestamp emailVerifiedAt;
+
+    @Column(name = "phone_verified_at")
+    private Timestamp phoneVerifiedAt;
+
 
 }

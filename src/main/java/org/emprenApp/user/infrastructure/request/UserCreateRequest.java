@@ -10,8 +10,8 @@ public class UserCreateRequest {
 
     private String email;
     private String password;
-    private String nombre;
-    private String apellido;
-    private String telefonoPersonal;
+    private String firstName;
+    private String lastName;
+    private String phone;
 
 }

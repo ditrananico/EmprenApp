@@ -2,7 +2,7 @@ package org.emprenApp.user.application.service;
 
 import lombok.RequiredArgsConstructor;
 import org.emprenApp.shared.application.application.ValidateGeneric;
-import org.emprenApp.shared.application.enums.EstadoUserEnum;
+import org.emprenApp.shared.application.enums.UserStatusEnum;
 import org.emprenApp.shared.application.exception.BaseException;
 import org.emprenApp.shared.application.exception.GenericException;
 import org.emprenApp.shared.application.exception.NotFoundException;
@@ -32,6 +32,7 @@ public class UserService implements UserAdapter {
         try {
             ValidateGeneric.validateNotNull(createRequest);
             ValidateGeneric.validateEmail(createRequest.getEmail());
+            ValidateGeneric.validateNotBlank(createRequest.getPhone());
 
             User usuarioCreado = userRepository.save(UserMapper.INSTANCE.toEntity(createRequest));
             logger.info("Usuario creado: {}", usuarioCreado.getEmail());
@@ -47,13 +48,13 @@ public class UserService implements UserAdapter {
     public UserDTO getUser(String email) throws BaseException {
         ValidateGeneric.validateEmail(email);
         return UserMapper.INSTANCE.toDTO(
-                userRepository.findByEmailAndEstado(email, EstadoUserEnum.ACTIVO)
+                userRepository.findByEmailAndStatus(email, UserStatusEnum.ACTIVE)
                         .orElseThrow(NotFoundException::new));
     }
 
     @Override
     public UserDTO getUserByID(Long id) throws BaseException {
-        Optional<User> user = userRepository.findByIdAndEstado(id, EstadoUserEnum.ACTIVO);
+        Optional<User> user = userRepository.findByIdAndStatus(id, UserStatusEnum.ACTIVE);
         user.orElseThrow(NotFoundException::new);
         return UserMapper.INSTANCE.toDTO(user.get());
     }
@@ -61,7 +62,7 @@ public class UserService implements UserAdapter {
     @Override
     public Page<UserDTO>  getAllUsers(Pageable pageable) throws BaseException {
         try {
-            Page<User> users = userRepository.findAllByEstado(EstadoUserEnum.ACTIVO, pageable);
+            Page<User> users = userRepository.findAllByStatus(UserStatusEnum.ACTIVE, pageable);
             return UserMapper.INSTANCE.toPageDTO(users);
         }catch(Exception e){
             logger.error("Error de acceso a datos al obtener usuarios: {}", e.getMessage());
@@ -74,12 +75,12 @@ public class UserService implements UserAdapter {
     public void deleteUser(String email) throws BaseException {
         try {
             ValidateGeneric.validateEmail(email);
-            Optional<User> userOptional = userRepository.findByEmailAndEstado(email, EstadoUserEnum.ACTIVO);
+            Optional<User> userOptional = userRepository.findByEmailAndStatus(email, UserStatusEnum.ACTIVE);
             if (userOptional.isEmpty()) {
                 throw new NotFoundException();
             }
             User user = userOptional.get();
-            user.setEstado(EstadoUserEnum.INACTIVO);
+            user.setStatus(UserStatusEnum.INACTIVE);
             userRepository.save(user);
 
             logger.info("Usuario eliminado exitosamente: {}", email);
@@ -98,7 +99,7 @@ public class UserService implements UserAdapter {
             ValidateGeneric.validateNotNull(userUpdateRequest);
             ValidateGeneric.validateEmail(userUpdateRequest.getEmail());
 
-            Optional<User> userOptional = userRepository.findByEmailAndEstado(userUpdateRequest.getEmail(), EstadoUserEnum.ACTIVO);
+            Optional<User> userOptional = userRepository.findByEmailAndStatus(userUpdateRequest.getEmail(), UserStatusEnum.ACTIVE);
             if (userOptional.isEmpty()) {
                 throw new NotFoundException();
             }
@@ -120,16 +121,16 @@ public class UserService implements UserAdapter {
     public void updateStatusUser(Long id) throws BaseException {
         try {
             ValidateGeneric.validateId(id);
-            Optional<User> userOptional = userRepository.findByIdAndEstado(id, EstadoUserEnum.ACTIVO);
+            Optional<User> userOptional = userRepository.findByIdAndStatus(id, UserStatusEnum.ACTIVE);
             if (userOptional.isEmpty()) {
                 throw new NotFoundException();
             }
 
             User user = userOptional.get();
-            user.setEstado(EstadoUserEnum.ACTIVO);
+            user.setStatus(UserStatusEnum.ACTIVE);
             userRepository.save(user);
 
-            logger.info("Estado del usuario actualizado: {}", user.getEstado());
+            logger.info("Estado del usuario actualizado: {}", user.getStatus());
         } catch (BaseException e){
             throw e;
         }catch (Exception e) {
