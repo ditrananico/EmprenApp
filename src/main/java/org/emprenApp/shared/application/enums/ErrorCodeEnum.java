@@ -14,6 +14,8 @@ public enum ErrorCodeEnum {
     ID_ERROR(7, "El ID debe ser un número positivo"),
     INVALID_PRICE(8,"El precio debe ser un número positivo"),
     INVALID_STOCK(9,"El stock debe ser un número positivo"),
+    INVALID_CREDENTIALS(10, "Credenciales invalidas"),
+    UNAUTHORIZED(11, "No autenticado: falta el token o no es valido"),
     GENERIC_ERROR(99, "Error generico en el sistema");
 
     private final Integer code;

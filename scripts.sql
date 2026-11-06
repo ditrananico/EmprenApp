@@ -2,6 +2,45 @@
 CREATE DATABASE emprenapp ;
 USE emprenapp ;
 
+CREATE TABLE emprenapp.permissions (
+                                       id BIGINT NOT NULL AUTO_INCREMENT,
+                                       name VARCHAR(100) NOT NULL,
+                                       description VARCHAR(255),
+                                       active BOOLEAN NOT NULL DEFAULT TRUE,
+                                       PRIMARY KEY (id),
+                                       INDEX idx_permissions_active (active),
+                                       INDEX idx_permissions_name (name)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE emprenapp.roles (
+                                 id BIGINT NOT NULL AUTO_INCREMENT,
+                                 name VARCHAR(50) NOT NULL,
+                                 description VARCHAR(255),
+                                 active BOOLEAN NOT NULL DEFAULT TRUE,
+                                 PRIMARY KEY (id),
+                                 INDEX idx_roles_active (active),
+                                 INDEX idx_roles_name (name)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE emprenapp.role_permissions (
+                                            role_id BIGINT NOT NULL,
+                                            permission_id BIGINT NOT NULL,
+                                            PRIMARY KEY (role_id, permission_id),
+                                            CONSTRAINT fk_role_permissions_role
+                                                FOREIGN KEY (role_id)
+                                                    REFERENCES emprenapp.roles(id),
+                                            CONSTRAINT fk_role_permissions_permission
+                                                FOREIGN KEY (permission_id)
+                                                    REFERENCES emprenapp.permissions(id),
+                                            INDEX idx_role_permissions_permission (permission_id)
+) ENGINE=InnoDB
+  DEFAULT CHARSET=utf8mb4
+  COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE emprenapp.users (
                                     id BIGINT NOT NULL AUTO_INCREMENT,
                                     email VARCHAR(255) NOT NULL,
@@ -13,9 +52,14 @@ CREATE TABLE emprenapp.users (
                                     phone VARCHAR(20) NOT NULL,
                                     email_verified_at TIMESTAMP NULL DEFAULT NULL,
                                     phone_verified_at TIMESTAMP NULL DEFAULT NULL,
+                                    role_id BIGINT NOT NULL,
                                     PRIMARY KEY (id),
                                     UNIQUE KEY uk_users_email (email),
                                     UNIQUE KEY uk_users_phone (phone),
+                                    CONSTRAINT fk_users_role
+                                        FOREIGN KEY (role_id)
+                                            REFERENCES emprenapp.roles(id),
+                                    INDEX idx_users_role (role_id),
                                     INDEX idx_users_status (status),
                                     INDEX idx_users_first_name_last_name (first_name, last_name)
 ) ENGINE=InnoDB
@@ -203,41 +247,3 @@ CREATE TABLE emprenapp.detalle_pedido (
   DEFAULT CHARSET=utf8mb4
   COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE emprenapp.permissions (
-                                       id BIGINT NOT NULL AUTO_INCREMENT,
-                                       name VARCHAR(100) NOT NULL,
-                                       description VARCHAR(255),
-                                       active BOOLEAN NOT NULL DEFAULT TRUE,
-                                       PRIMARY KEY (id),
-                                       INDEX idx_permissions_active (active),
-                                       INDEX idx_permissions_name (name)
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE emprenapp.roles (
-                                 id BIGINT NOT NULL AUTO_INCREMENT,
-                                 name VARCHAR(50) NOT NULL,
-                                 description VARCHAR(255),
-                                 active BOOLEAN NOT NULL DEFAULT TRUE,
-                                 PRIMARY KEY (id),
-                                 INDEX idx_roles_active (active),
-                                 INDEX idx_roles_name (name)
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci;
-
-CREATE TABLE emprenapp.role_permissions (
-                                            role_id BIGINT NOT NULL,
-                                            permission_id BIGINT NOT NULL,
-                                            PRIMARY KEY (role_id, permission_id),
-                                            CONSTRAINT fk_role_permissions_role
-                                                FOREIGN KEY (role_id)
-                                                    REFERENCES emprenapp.roles(id),
-                                            CONSTRAINT fk_role_permissions_permission
-                                                FOREIGN KEY (permission_id)
-                                                    REFERENCES emprenapp.permissions(id),
-                                            INDEX idx_role_permissions_permission (permission_id)
-) ENGINE=InnoDB
-  DEFAULT CHARSET=utf8mb4
-  COLLATE=utf8mb4_unicode_ci;

@@ -29,7 +29,7 @@ public class ValidateGeneric {
         if (email == null || email.isBlank()) {
             throw new BaseException(ErrorCodeEnum.PATTERN_EMAIL);
         }
-        if (!EMAIL_PATTERN.matcher(email).matches()) {
+        if (!EMAIL_PATTERN.matcher(email.trim()).matches()) {
             throw new BaseException(ErrorCodeEnum.PATTERN_EMAIL);
         }
     }

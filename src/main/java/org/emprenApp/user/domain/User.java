@@ -2,6 +2,7 @@ package org.emprenApp.user.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.emprenApp.role.domain.Role;
 import org.emprenApp.shared.application.enums.UserStatusEnum;
 
 import java.sql.Timestamp;
@@ -43,5 +44,8 @@ public class User {
     @Column(name = "phone_verified_at")
     private Timestamp phoneVerifiedAt;
 
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 
 }

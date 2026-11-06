@@ -104,6 +104,7 @@ public class GlobalHandlerException extends ResponseEntityExceptionHandler {
         return switch (code) {
             case INVALID_PARAMETERS, PATTERN_EMAIL, INPUT_LENGTH, ID_ERROR,
                  INVALID_PRICE, INVALID_STOCK, PEDIDO_ERROR_CANCELAR -> HttpStatus.BAD_REQUEST;
+            case INVALID_CREDENTIALS -> HttpStatus.UNAUTHORIZED;
             case NOT_FOUND -> HttpStatus.NOT_FOUND;
             case DUPLICATE_KEY -> HttpStatus.CONFLICT;
             default -> HttpStatus.INTERNAL_SERVER_ERROR;

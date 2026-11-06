@@ -21,6 +21,8 @@ public class UserDTO {
     private String phone;
     private Timestamp emailVerifiedAt;
     private Timestamp phoneVerifiedAt;
+    private Long roleId;
+    private String roleName;
 
     public String toString(){
         return "UserDTO{" +
@@ -33,6 +35,8 @@ public class UserDTO {
                 ", phone='" + phone + '\'' +
                 ", emailVerifiedAt=" + emailVerifiedAt +
                 ", phoneVerifiedAt=" + phoneVerifiedAt +
+                ", roleId=" + roleId +
+                ", roleName='" + roleName + '\'' +
                 '}';
     }
 }
